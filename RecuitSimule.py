@@ -1,26 +1,13 @@
 from utils import data
 from utils import diagram
 from utils import commun_functions
+from utils import data
+
 import random
 import math
 import matplotlib.pyplot as plt
 from PIL import Image
-
-class data:
-    def __init__(self):
-        self.lambdaC=0.99 # Degradtion threshold of Corrective Maintenance  
-        self.lambdaQ=0.8  # Degradation threshold of Quality maintenance
-        self.lambdaPM=0.7 # Degradation threshold of Preventive Maintenance
-        self.mu=0.01      # reliability degradation rate
-        self.ProcTime=[ #(machine_id, process_time) 
-                [ [(2, 10)], [(0, 5)], [(1, 4)]   ],	#Job0
-                [ [(0, 6) ], [(1, 7)]                       ],	#Job1
-                [ [(1, 4)],  [(2, 5)]                       ],	#Job2
-            ]
-        self.PM_time=2
-        self.CM_time=5
-        self.NM = 4
-        self.NJ = 5
+import time 
 
 class RS:
     def __init__(self, initial_solution, initial_temperature, cooling_rate, stopping_temperature, size_iteration, max_iterations):
@@ -75,37 +62,36 @@ class RS:
 
 
 # Run the Simulated Annealing algorithm
-data_instance = data()
-# initial_solution = commun_functions.GenererSolution(data_instance)
-# RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
+data_instance = data.data()
+initial_solution = commun_functions.GenererSolution(data_instance)
+RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
 
-# best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
+best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
 
-# print("intial Solution:", initial_solution)
-# print("Best Solution:", best_solution, "Best energy:", best_energy)
-# print("Number of iterations:", nb_iteration)
+print("intial Solution:", initial_solution)
+print("Best Solution:", best_solution, "Best energy:", best_energy)
+print("Number of iterations:", nb_iteration)
 
-# #evaluate : NM,NJ,cmax,schedule,maint,ehf
-# #diagram : self,NM,NJ,PMT,mu, cmax,schedule,maint,ehf
+#evaluate : NM,NJ,cmax,schedule,maint,ehf
+#diagram : self,NM,NJ,PMT,mu, cmax,schedule,maint,ehf
 
-# NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
-
-solution = [(1,1), (0,3), (2,2), (1,2), (0,1), (0,2), (2,3)]
-NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(solution,data_instance)
+NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
 
 print("Schedule=", schedule)
 
-Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf)
+fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg"
+
+Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf,fileName)
 
 print(f"Production scedhuling: {schedule}")
 print(f"Maintenance scedhuling: {maint}")
 
-# Gantt.plotEHF()
+Gantt.plotEHF()
 Gantt.plotGantt()
 
 # Charger les images enregistrées
-image_gantt = Image.open("gantt_chart.png")
-image_ehf = Image.open("ehf_chart.png")
+image_gantt = Image.open(Gantt.ganttsavefilename)
+image_ehf = Image.open(Gantt.ehfplotsavefilename)
 
 # Afficher les deux images dans une seule fenêtre
 fig, ax = plt.subplots(1, 2, figsize=(10, 5))

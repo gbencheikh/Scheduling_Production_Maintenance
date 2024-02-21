@@ -65,7 +65,8 @@ class diagram:
             jobkeys.append('Job %i'%j)
             patches.append(matplotlib.patches.Patch(color=self.mcolors[j]))             
         plt.legend(handles=patches, labels=jobkeys, fontsize=15)
-        fig.savefig(self.ganttsavefilename)
+        fig.savefig(self.ganttsavefilename, bbox_inches='tight')
+        plt.close(fig)
 
     def plotEHF(self):
         """ Cette fonction pour afficher l'évolution de la dégradation des machines """
@@ -124,3 +125,4 @@ class diagram:
                     if t>1 and EHF[m][t-1]<EHF[m][t] and EHF[m][t+1]==EHF[m][t] :
                         plt.text(t,10*maxehf*(m+1)+10*EHF[m][t]+0.5, r'%.2f' % EHF[m][t], fontsize=15)
         fig.savefig(self.ehfplotsavefilename)
+        plt.close(fig)
