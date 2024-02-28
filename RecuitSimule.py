@@ -77,7 +77,6 @@ for i in range(10):
     initial_solution = commun_functions.GenererSolution(data_instance)
     RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
 
-    
     best_sub_solution, best_sub_energy, nb_sub_iteration = RS_instance.simulated_annealing(data_instance)
 
     if best_sub_energy < best_energy : 
