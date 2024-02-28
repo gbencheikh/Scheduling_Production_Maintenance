@@ -62,18 +62,33 @@ class RS:
 
 
 # Run the Simulated Annealing algorithm
+    
+instancefilename='Instances/Kacem1.fjs'
+ptimes=commun_functions.FJSInstanceReading(instancefilename)
+
 data_instance = data.data()
+data_instance.procTime(ptimes)
+
 initial_solution = commun_functions.GenererSolution(data_instance)
 RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
-
 best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
+
+for i in range(10): 
+    initial_solution = commun_functions.GenererSolution(data_instance)
+    RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
+
+    
+    best_sub_solution, best_sub_energy, nb_sub_iteration = RS_instance.simulated_annealing(data_instance)
+
+    if best_sub_energy < best_energy : 
+        best_solution = best_sub_solution
+        best_energy = best_sub_energy
+        nb_iteration = nb_sub_iteration
+
 
 print("intial Solution:", initial_solution)
 print("Best Solution:", best_solution, "Best energy:", best_energy)
 print("Number of iterations:", nb_iteration)
-
-#evaluate : NM,NJ,cmax,schedule,maint,ehf
-#diagram : self,NM,NJ,PMT,mu, cmax,schedule,maint,ehf
 
 NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
 
@@ -83,8 +98,8 @@ fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg
 
 Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf,fileName)
 
-print(f"Production scedhuling: {schedule}")
-print(f"Maintenance scedhuling: {maint}")
+# print(f"Production scedhuling: {schedule}")
+# print(f"Maintenance scedhuling: {maint}")
 
 Gantt.plotEHF()
 Gantt.plotGantt()
