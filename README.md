@@ -2,7 +2,7 @@
 
 
 1. Introduction
-The Production and Maintenance Scheduling Program is designed to facilitate the scheduling of production and maintenance activities using two metaheuristic algorithms: Variable Neighborhood Search (VNS) and Simulated Annealing (SA). These algorithms aim to optimize scheduling solutions, considering various constraints and objectives such as minimizing downtime, maximizing production output, and optimizing resource utilization.
+The Production and Maintenance Scheduling Program is designed to facilitate the scheduling of production and maintenance activities using two metaheuristic algorithms: Variable Neighborhood Search (VNS) and Simulated Annealing (SA). These algorithms aim to optimize scheduling solutions, considering various constraints (flexible job shop constraints and predictive maintennace planning) and objective of minimizing makespan Cmax.
 
 2. Installation
 No specific requirement needed
@@ -33,4 +33,4 @@ PM_time: Time required for Preventive Maintenance (PM) activities.
 CM_time: Time required for Corrective Maintenance (CM) activities.
 
 6. Output Format
-when execusting a certain metaheuristic, the algorithm return the final solution and the corresponding digrams are saved into folder results with a unique fileName at which time solution has been generated. 
+when execusting a certain metaheuristic, the algorithm return the final solution and the corresponding Cmax and digrams are saved into folder results with a unique fileName at which time solution has been generated. 
