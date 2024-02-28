@@ -65,7 +65,12 @@ class VNS:
                         nbrV=nbrV+1
         return current_solution    
     
+instancefilename='Instances/Kacem1.fjs'
+ptimes=commun_functions.FJSInstanceReading(instancefilename)
+
 data_instance = data.data()
+data_instance.procTime(ptimes)
+
 LargVmax = sum([1  for jid,job in enumerate(data_instance.ProcTime) for opid,op in enumerate(job) if len(op)>1])
 
 kmax = LargVmax/2
