@@ -62,46 +62,46 @@ class VNS:
                         nbrV=nbrV+1
         return current_solution    
     
-instancefilename='Instances/Kacem1.fjs'
-ptimes=commun_functions.FJSInstanceReading(instancefilename)
+# instancefilename='Instances/Kacem1.fjs'
+# ptimes=commun_functions.FJSInstanceReading(instancefilename)
 
-data_instance = data.data()
-data_instance.procTime(ptimes)
+# data_instance = data.data()
+# data_instance.procTime(ptimes)
 
-LargVmax = sum([1  for jid,job in enumerate(data_instance.ProcTime) for opid,op in enumerate(job) if len(op)>1])
+# LargVmax = sum([1  for jid,job in enumerate(data_instance.ProcTime) for opid,op in enumerate(job) if len(op)>1])
 
-kmax = LargVmax/2
-maxTime = 30
+# kmax = LargVmax/2
+# maxTime = 30
 
-VNS_instance = VNS(kmax,maxTime, data_instance)
-best_solution = VNS_instance.BasicVNS()  
-NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
+# VNS_instance = VNS(kmax,maxTime, data_instance)
+# best_solution = VNS_instance.BasicVNS()  
+# NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
 
-print("Schedule=", schedule)
+# print("Schedule=", schedule)
 
-fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg"
+# fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg"
 
-Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf,fileName)
+# Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf,fileName)
 
-print(f"Production scedhuling: {schedule}")
-print(f"Maintenance scedhuling: {maint}")
+# print(f"Production scedhuling: {schedule}")
+# print(f"Maintenance scedhuling: {maint}")
 
-Gantt.plotEHF()
-Gantt.plotGantt()
+# Gantt.plotEHF()
+# Gantt.plotGantt()
 
-# Charger les images enregistrées
-image_gantt = Image.open(Gantt.ganttsavefilename)
-image_ehf = Image.open(Gantt.ehfplotsavefilename)
+# # Charger les images enregistrées
+# image_gantt = Image.open(Gantt.ganttsavefilename)
+# image_ehf = Image.open(Gantt.ehfplotsavefilename)
 
-# Afficher les deux images dans une seule fenêtre
-fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+# # Afficher les deux images dans une seule fenêtre
+# fig, ax = plt.subplots(1, 2, figsize=(10, 5))
 
-ax[0].imshow(image_gantt)
-ax[0].axis('off')
-ax[0].set_title('Gantt Chart')
+# ax[0].imshow(image_gantt)
+# ax[0].axis('off')
+# ax[0].set_title('Gantt Chart')
 
-ax[1].imshow(image_ehf)
-ax[1].axis('off')
-ax[1].set_title('EHF Chart')
+# ax[1].imshow(image_ehf)
+# ax[1].axis('off')
+# ax[1].set_title('EHF Chart')
 
-plt.show()
+# plt.show()
