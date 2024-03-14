@@ -18,11 +18,9 @@ class VNS:
         bestCmax = commun_functions.evaluate(x[0], self.instance)[2]
         for _,v in enumerate(x):
             cmax = commun_functions.evaluate(v, self.instance)[2]
-
             if cmax < bestCmax:
                 bestCmax = cmax 
                 bestSol = v
-
         return best_voisin, bestCmax
 
     def ChangeVoisinage(self, x1, x2, k, nbrV):
@@ -50,7 +48,6 @@ class VNS:
                 xx=[]
                 for _,ii in enumerate(voisins):
                     xx.append(ii)
-                    
                 best_neighbor, cmax2 = self.BestVoisin(xx)
                 cmax_1 = commun_functions.evaluate(current_solution, self.instance)[2]
                 cmax_2 = commun_functions.evaluate(best_neighbor, self.instance)[2]
