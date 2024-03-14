@@ -37,7 +37,7 @@ class VNS:
                 nbrV=nbrV+1
         return x1,k,nbrV
     
-    def BasicVNS(self):
+    def BasicVNS0(self):
         t0 = time.perf_counter()
         while time.perf_counter() - t0 < self.maxTime:
             k=1
