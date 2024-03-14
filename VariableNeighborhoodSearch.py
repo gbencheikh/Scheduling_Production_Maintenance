@@ -50,7 +50,6 @@ class VNS:
                 xx=[]
                 for _,ii in enumerate(voisins):
                     xx.append(ii)
-                    
                 best_neighbor, cmax2 = self.BestVoisin(xx)
                 cmax_1 = commun_functions.evaluate(current_solution, self.instance)[2]
                 cmax_2 = commun_functions.evaluate(best_neighbor, self.instance)[2]
