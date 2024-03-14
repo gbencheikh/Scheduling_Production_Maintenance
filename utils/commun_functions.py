@@ -103,10 +103,8 @@ def Voisinage(Solution_,LargV,NbrV,data): # trouver NbrV solutions voisines de S
                 jobid=Solution[opid][0]
                 machid=Solution[opid][1]
                 operid=sum([Solution[i][0]==jobid for i in range(opid)])
-
                 if len([omid[0] for id,omid in enumerate(data.ProcTime[jobid][operid]) if omid[0]!=machid])>0:
                     nbropersfound += 1
-        
         voisin=Solution_[:]
 
         for tid,opid in enumerate(SelectOper):
@@ -124,6 +122,54 @@ def Voisinage(Solution_,LargV,NbrV,data): # trouver NbrV solutions voisines de S
         if voisin!=Solution and voisin not in voisins:
             voisins.append(voisin)    
     return voisins
+
+def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de Solution dans un voisinage de largeur LargV
+    voisins=[]
+    #print('LargV=',LargV,' NbrV=',NbrV)
+    while len(voisins)<NbrV:
+        voisin=[]
+        selected_opers_sample=random.sample(range(len(Solution)),k=LargV)
+        selected_opers_sorted= sorted(selected_opers_sample)
+        selected_opers_sample= sorted(selected_opers_sample)
+        if LargV>1:
+            while sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)])>0:
+                #print("sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)])=",sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)]))
+                random.shuffle(selected_opers_sample)
+        nbr=0
+        for i,sol in enumerate(Solution):
+            #print("i=",i,"solution=",sol)
+            jobid=sol[0]
+            machid0=sol[1]
+            if nbr<LargV:
+                if i==selected_opers_sorted[nbr]:
+                    sol0=Solution[selected_opers_sample[nbr]]
+                    voisin.append(sol0)
+                    nbr=nbr+1
+                else:
+                    voisin.append(sol)
+            else:
+                voisin.append(sol)
+        partvoisin=[]
+        for i,sol in enumerate(voisin):
+            partvoisin.append(sol)
+            #print(partvoisin)
+            jid=sol[0]
+            opid=sum([s[0]==jid for si,s in enumerate(partvoisin)])-1
+            #print(PTimes[jid])
+            compmach=[om[0] for ji,job in enumerate(PTimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==jid and oi==opid]
+            #print("jid=",jid," opid=",opid," compach=",compmach)
+            #print("sol avant",sol)
+            if sol[1] not in compmach:
+                newm=random.choice(compmach)
+                sol=(jid,newm)
+            else:
+                if len(compmach)>0:
+                    newm=random.choice(compmach)
+                    sol=(jid,newm)
+        voisins.append(voisin)
+    return voisins
+
+
 
 def GenererSolution(data):
     sol=[]
