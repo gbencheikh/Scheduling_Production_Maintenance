@@ -115,9 +115,6 @@ class VNS:
         return besta,bestb,bestc,bestd,beste,bestf,x
 
 
-
-
-
 instancefilename='Instances/Kacem1.fjs'
 ptimes=commun_functions.FJSInstanceReading(instancefilename)
 
