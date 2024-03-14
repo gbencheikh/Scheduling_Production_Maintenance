@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math 
 
 def FJSInstanceReading(filepath):
       proctimes=[]
@@ -39,6 +40,58 @@ def FJSInstanceReading(filepath):
                               proctimes[j][i].append((M_ID_jik,PRT_ji_m))
                         NBRM_jii=NBRM_jii+NBRM[j][i]    
       return proctimes
+
+def read_instance(instancefilename):
+    with open(instancefilename, 'r') as f:
+        line = f.readline().strip()
+        values = line.split()
+        NM=int(values[0])
+        NJ=int(values[1])
+        NOPmax=0
+        NOP=[]
+        NBRM=[]
+        PRT=[]
+        MU=[]
+        LAMBDA=[]
+        for j in range(NJ):
+            line = f.readline().strip()
+            values = line.split()
+            if int(values[0])>NOPmax:
+                NOPmax=int(values[0])
+            NOP.append(int(values[0]))
+            #print("NOP(",j,")=",NOP[j])
+            NBRM_jii=0
+            NBRM.append([])
+            PRT.append([])
+            for i in range(NOP[j]):
+                NBRM[j].append(int(values[i+1+NBRM_jii*2]))
+                PRT[j].append([])
+                #print("NBRM_ji=",NBRM[j][i])
+                for k in range(NM):
+                    PRT[j][i].append(0)
+                for k in range(NBRM[j][i]):
+                    M_ID_jik=int(values[i+2+2*k+NBRM_jii*2])-1
+                    PRT_ji_m =int(values[i+3+2*k+NBRM_jii*2])
+                    PRT[j][i][M_ID_jik] = PRT_ji_m
+                NBRM_jii=NBRM_jii+NBRM[j][i]    
+        line = f.readline().strip()
+        for m in range(NM):
+            line = f.readline().strip()
+            values = line.split()
+            MU.append(float(values[0]))
+            LAMBDA.append(float(values[1]))
+    f.close()
+    sumpmax=0
+    for j in range(NJ):
+        for i in range(NOP[j]):
+            pmax = 0.0
+            for k in range(NM):
+                if float(PRT[j][i][k]) > pmax:
+                    pmax = PRT[j][i][k]
+            sumpmax += pmax
+    NP = math.ceil(sumpmax)
+    
+    return PRT
 
 def evaluate(Solution_, data):
     solution = Solution_[:]
