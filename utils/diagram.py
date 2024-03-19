@@ -18,7 +18,7 @@ class diagram:
         self.mcolors = ['tab:red', 'tab:cyan', 'tab:green', 'tab:orange', 'tab:grey', 'yellow', 'tab:brown', 'magenta',
                 'lime', 'tomato', 'tab:blue', 'red', 'cyan', 'green', 'blue','khaki','violet','gold','olivedrab','thisfle']
         
-    def plotGantt(self):
+    def plotGantt(self,afficher):
         """ Cette fonction pour afficher le digramme de gantt d'une solution donnée """
 
         # Declaring a figure "gnt"
@@ -66,9 +66,11 @@ class diagram:
             patches.append(matplotlib.patches.Patch(color=self.mcolors[j]))             
         plt.legend(handles=patches, labels=jobkeys, fontsize=15)
         fig.savefig(self.ganttsavefilename, bbox_inches='tight')
+        if afficher:
+            plt.show
         plt.close(fig)
 
-    def plotEHF(self):
+    def plotEHF(self,afficher):
         """ Cette fonction pour afficher l'évolution de la dégradation des machines """
         EHF=numpy.zeros((self.NM,self.cmax))
         for m in range(self.NM):
@@ -125,4 +127,6 @@ class diagram:
                     if t>1 and EHF[m][t-1]<EHF[m][t] and EHF[m][t+1]==EHF[m][t] :
                         plt.text(t,10*maxehf*(m+1)+10*EHF[m][t]+0.5, r'%.2f' % EHF[m][t], fontsize=15)
         fig.savefig(self.ehfplotsavefilename)
+        if afficher:
+            plt.show
         plt.close(fig)
