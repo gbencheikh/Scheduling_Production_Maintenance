@@ -68,7 +68,7 @@ class diagram:
         fig.savefig(self.ganttsavefilename, bbox_inches='tight')
         if afficher:
             plt.show
-        plt.close(fig)
+        #plt.close(fig)
 
     def plotEHF(self,afficher):
         """ Cette fonction pour afficher l'évolution de la dégradation des machines """
@@ -129,4 +129,4 @@ class diagram:
         fig.savefig(self.ehfplotsavefilename)
         if afficher:
             plt.show
-        plt.close(fig)
+        #plt.close(fig)
