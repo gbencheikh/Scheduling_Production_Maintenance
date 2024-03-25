@@ -1,7 +1,6 @@
 from utils import data
 from utils import diagram
 from utils import commun_functions
-from utils import data
 
 import random
 import math
@@ -26,36 +25,40 @@ logger=logging.getLogger()
 global colors
 
 class GurSol:
-    def __init__(self, instance):
+    def __init__(self, mu, lambdaPM, lambdaQ, lambdaC, PM_time, CM_time, ProcTime):
         # Simulated Annealing parameters
-        self.inst = instance
-        self.prt = instance.ProcTime
-        self.mu = instance.mu
-        self.Lambda = instance.lambdaPM
-        self.LambdaQ = instance.lambdaQ
-        self.LambdaC = instance.lambdaC
-        self.pmt = instance.PM_time
-        self.cmt = instance.CM_time
+        self.prt = ProcTime
+        self.mu = mu
+        self.Lambda = lambdaPM
+        self.LambdaQ = lambdaQ
+        self.LambdaC = lambdaC
+        self.pmt = PM_time
+        self.cmt = CM_time
          
-    
-    def SolveIPQM_FJSP(self,MAINT,QUAL,ShowGurobiConsole):
+    def SolveIPQM_FJSP(self,NP,MAINT,QUAL,ShowGurobiConsole):
         PMT=self.pmt
         CMT=self.cmt
         LAMBDA=self.Lambda
         LAMBDAQ=self.LambdaQ
         LAMBDAC=self.LambdaC
         MU=self.mu
-        PRT=self.prt
-                
-        #NJ=len(PRT)
-        #NM=max[mo[0] for _,job in enumerate(PRT) for _,oper in enumerate(job) for _,mo in enumerate(oper)]
-        NOP=[len(job) for _,job in enumerate(PRT)]
+                        
+        NJ=len(self.prt)
+        NM=max([mo[0] for _,job in enumerate(self.prt) for _,oper in enumerate(job) for _,mo in enumerate(oper)])
+        NOP=[len(job) for _,job in enumerate(self.prt)]
+        PRT=[]
+        for j in range(NJ): PRT[j]=np.zeros(NOP[j],NM)
+        for j,job in enumerate(self.prt):
+            for o,oper in enumerate(job): 
+                for _,mo in enumerate(oper):
+                    PRT[j][o][mo[0]]=mo[1]
+
         NOPmax=max(NOP)
-        
-        RandomSol=random.shuffle([(jid,mo[0]) for jid,job in enumerate(PRT) for opid,op in enumerate(job) for mo in random.sample(op,1)])
-        NM,NJ,cmax,schedule,maint,ehf=commun_functions.evaluate(RandomSol,self.inst)
-        
-        NP=cmax      
+        print(self.prt)
+        print(PRT)
+        #RandomSol=random.shuffle([(jid,mo[0]) for jid,job in enumerate(PRT) for opid,op in enumerate(job) for mo in random.sample(op,1)])
+        #NM,NJ,cmax,schedule,maint,ehf=commun_functions.evaluate(RandomSol,self.inst)
+        #NP=cmax      
         T = range(1,NP+1)
         OP = range(NOPmax) 
         MACH = range(NM)
@@ -79,6 +82,7 @@ class GurSol:
         ooc   = model.addVars(NM, NP+1,       vtype=GRB.BINARY,     name="OC") 
 
         for (j,i) in [(j,i) for j in J for i in range(NOP[j])]:
+            for m in M: print(PRT[j][i][m])
             model.addConstr(cmax   >= s[j,i] + sum(PRT[j][i][m]*y[j,i,m] for m in M if PRT[j][i][m]>0),                   name=f'CST1[{j},{i}]')
             model.addConstr(s[j,i] >= 0,                                                                                  name=f'CST300[{j},{i}]')
             
