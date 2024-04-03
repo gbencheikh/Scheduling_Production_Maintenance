@@ -159,7 +159,6 @@ def Voisinage(Solution_,LargV,NbrV,data): # trouver NbrV solutions voisines de S
                 if len([omid[0] for id,omid in enumerate(data.ProcTime[jobid][operid]) if omid[0]!=machid])>0:
                     nbropersfound += 1
         voisin=Solution_[:]
-
         for tid,opid in enumerate(SelectOper):
             jobid=Solution[opid][0]
             machid=Solution[opid][1]

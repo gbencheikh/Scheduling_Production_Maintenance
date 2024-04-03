@@ -54,12 +54,14 @@ class VNS:
                 if cmax_2 < cmax_1:
                     current_solution = best_neighbor
                     k=1
-                    if nbrV>2:
-                        nbrV=nbrV-1
+                    nbrV=1
+                    #if nbrV>2:
+                    #    nbrV=nbrV-1
                 else:
-                    k=k+1
                     if nbrV<10: 
                         nbrV=nbrV+1
+                    else:
+                        k=k+1
         return current_solution    
     
     def BasicVNS(self):
@@ -72,6 +74,8 @@ class VNS:
             k=1
             nbrV=1
             x=commun_functions.GenererSolution(self.instance)
+            if k%2==1: 
+                x=[(jid,mo[0]) for jid,job in enumerate(self.instance.ProcTime) for opid,op in enumerate(job) for mo in random.sample(op,1)]
             #print("new generated solution=",x)
             if i==0: besta,bestb,bestc,bestd,beste,bestf=commun_functions.evaluate(x,self.instance)
             while k<kmax:
@@ -120,8 +124,8 @@ class VNS:
 # data_instance = data.data()
 # data_instance.procTime(ptimes)
 
-instancefilename='Instances/Kacem1.fjs'
-ptimes=commun_functions.FJSInstanceReading(instancefilename)
+#instancefilename='Instances/Kacem1.fjs'
+#ptimes=commun_functions.FJSInstanceReading(instancefilename)
 
 # fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg"
 

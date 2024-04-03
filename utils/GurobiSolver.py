@@ -7,6 +7,7 @@ import math
 import matplotlib.pyplot as plt
 from PIL import Image
 import time 
+import matplotlib
 
 import gurobipy as gp
 from gurobipy import GRB
@@ -35,27 +36,36 @@ class GurSol:
         self.pmt = PM_time
         self.cmt = CM_time
          
-    def SolveIPQM_FJSP(self,NP,MAINT,QUAL,ShowGurobiConsole):
+    def SolveIPQM_FJSP(self,InstName, NP,MAINT,QUAL,ShowGurobiConsole):
         PMT=self.pmt
         CMT=self.cmt
-        LAMBDA=self.Lambda
+        
         LAMBDAQ=self.LambdaQ
         LAMBDAC=self.LambdaC
-        MU=self.mu
-                        
+        LAMBDA=[]
+        MU=[]               
         NJ=len(self.prt)
-        NM=max([mo[0] for _,job in enumerate(self.prt) for _,oper in enumerate(job) for _,mo in enumerate(oper)])
+        NM=1+max([mo[0] for _,job in enumerate(self.prt) for _,oper in enumerate(job) for _,mo in enumerate(oper)])
         NOP=[len(job) for _,job in enumerate(self.prt)]
+        for m in range (NM):
+            MU.append(self.mu)
+            LAMBDA.append(self.Lambda)
         PRT=[]
-        for j in range(NJ): PRT[j]=np.zeros(NOP[j],NM)
+        for j in range(NJ):
+            PRT.append([],)
+            for i in range(NOP[j]):
+                PRT[j].append([],)
+                for m in range(NM):
+                    PRT[j][i].append(0)
         for j,job in enumerate(self.prt):
-            for o,oper in enumerate(job): 
+            print(job)
+            for o,oper in enumerate(job):
                 for _,mo in enumerate(oper):
-                    PRT[j][o][mo[0]]=mo[1]
-
+                    m=mo[0]
+                    PRT[j][o][m]=mo[1]
         NOPmax=max(NOP)
-        print(self.prt)
-        print(PRT)
+        print(MU)
+        #print(PRT)
         #RandomSol=random.shuffle([(jid,mo[0]) for jid,job in enumerate(PRT) for opid,op in enumerate(job) for mo in random.sample(op,1)])
         #NM,NJ,cmax,schedule,maint,ehf=commun_functions.evaluate(RandomSol,self.inst)
         #NP=cmax      
@@ -82,7 +92,7 @@ class GurSol:
         ooc   = model.addVars(NM, NP+1,       vtype=GRB.BINARY,     name="OC") 
 
         for (j,i) in [(j,i) for j in J for i in range(NOP[j])]:
-            for m in M: print(PRT[j][i][m])
+            #for m in M: print(PRT[j][i][m])
             model.addConstr(cmax   >= s[j,i] + sum(PRT[j][i][m]*y[j,i,m] for m in M if PRT[j][i][m]>0),                   name=f'CST1[{j},{i}]')
             model.addConstr(s[j,i] >= 0,                                                                                  name=f'CST300[{j},{i}]')
             
@@ -149,8 +159,8 @@ class GurSol:
             for (m,t) in [(m,t) for m in M for t in T if t>PMT]:
                 model.addConstr(sum(zz[m,k] for k in range(t-PMT+1,t+1)) == z[m,t],                                       name=f'CST12[{m},{t}]')
             
-            if os.path.isfile('Results/bounds_'+InstanceFile+'.dat')==True:
-                with open('Results/bounds_'+InstanceFile+'.dat', 'r') as f:
+            if os.path.isfile('results/bounds_'+InstName+'.dat')==True:
+                with open('results/bounds_'+InstName+'.dat', 'r') as f:
                     line   = f.readline().strip()
                     values = line.split()
                     model.addConstr(cmax>=values[0],                                                                      name='CSTCmaxLB')
@@ -202,11 +212,11 @@ class GurSol:
                     tcmax=math.ceil(objf)
                     if model.getVarByName(f"DELTA[{k},{tcmax}]").X > Cmax0:
                         Cmax0=model.getVarByName(f"DELTA[{k},{tcmax}]").X
-                    nbrMC[k]=math.ceil(model.getVarByName(f"DELTA[{k},{tcmax}]").X/LAMBDAC)
-                Cmax00=objf + CMT*math.ceil(Cmax0/LAMBDAC)
+                    nbrMC[k]=math.ceil(model.getVarByName(f"DELTA[{k},{tcmax}]").X/LAMBDA[k])
+                Cmax00=objf + PMT*max(nbrMC)
                 if QUAL==1:
                     Cmax00=objf+sum(PMT for j in J for i in range(NOP[j])) - 2*NM*PMT
-                File_object = open(r"Results/bounds"+InstanceFile+".dat","w")
+                File_object = open(r"results/bounds"+InstName+".dat","w")
                 File_object.write("%d %d" %(objf,Cmax00))
                 File_object.close()
             else:
@@ -215,13 +225,147 @@ class GurSol:
                         ZZ[m,t]=model.getVarByName(f"ZZ[{m},{t}]").X
                 Cmax00=objf
                 if QUAL==0:
-                    Cmax00=objf + sum(PMT for j in J for i in range(NOP[j])) - 2*NM*PMT
-                    File_object = open(r"Results/bounds"+InstanceFile+".dat","w")
+                    Cmax00=Cmax00 + sum(PMT for j in J for i in range(NOP[j])) - 2*NM*PMT
+                    File_object = open(r"results/bounds"+InstName+".dat","w")
                     File_object.write("%d %d" %(objf,Cmax00))
                     File_object.close()
             return X, Y, ZZ, DELTA, objf, gap, cputime, start_time, task_duration, assigned_machine
         else:
             model.computeIIS()
             model.write('lpmodel.ilp')
-            return 'infeas','infeas','infeas','infeas','infeas',cputime,'infeas','infeas','infeas'
-            
+            for j,job in enumerate(PRT): 
+                print(job)
+            return 'infeas','infeas','infeas','infeas','infeas',cputime,'infeas','infeas','infeas','infeas'
+
+    def plotGANTT0(self,NJ,NM,NOP,X, Y, ZZ, DELTA, objfun, gap, cputime, start_time, task_duration, assigned_machine,graphtitle):
+        PMT=self.pmt
+        CMT=self.cmt
+        fig, gnt = plt.subplots(figsize=(20, 10)) # Declaring a figure "gnt"
+        plt.title(graphtitle,fontsize=30 ) #MJGR
+        gnt.minorticks_on()
+        gnt.grid(which='major', linestyle='-', linewidth='0.5', color='grey')    # Customize the major grid
+        gnt.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  # Customize the minor grid
+        gnt.set_ylim(0, 12 * (NM)+2)                       # Setting Y-axis limits
+        gnt.set_xlim(0, objfun + 5)                             # Setting X-axis limits
+        gnt.set_xlabel('Time', fontsize=30)                      # Setting labels for x-axis and y-axis
+        gnt.set_ylabel('Processors', fontsize=30)
+        gnt.tick_params(labelsize=30)
+
+        yticks = [] 
+        setticks = []
+        for m in range(NM):
+            yticks.append(12 * (m)+2)
+            setticks.append(12 * (m)+2)
+        gnt.set_yticks(setticks) # Setting ticks on y-axis
+        ylabels = []
+        for m in range(NM):
+            mach = 'M' + str(m+1)
+            ylabels.append(mach)
+
+        gnt.set_yticklabels(ylabels, fontsize=30) # Labelling tickes of y-axis
+        mcolors = ['tab:red', 'tab:cyan', 'tab:green', 'tab:orange', 'tab:grey', 'yellow', 'tab:brown', 'magenta',
+                'lime', 'tomato', 'tab:blue', 'red', 'cyan', 'green', 'blue']
+        gnt.grid(True, linewidth=0.5)
+        corr=[]
+        for machine in range(NM):
+            a = []
+            b = ()
+            corr.append([])
+            for j in range(NJ):
+                for i in range(NOP[j]):
+                    if Y[j,i,machine]>0:
+                        if DELTA[machine,start_time[j,i]+1]>0.99:
+                            a.append((start_time[j,i]+CMT, task_duration[j,i]))
+                            if len(corr[machine])==0:
+                                corr[machine].append(start_time[j,i])
+                        else:
+                            a.append((start_time[j,i], task_duration[j,i]))
+                        b = b + (mcolors[j],)
+                        op = '$_{(%i,%i)}$' % (j, i)
+                        x = start_time[j,i] + 0.1
+                        y = yticks[machine]
+                    # gnt.text(x, y, op, fontsize=20, weight='bold')       
+                gnt.broken_barh(a, (yticks[machine]-2, 4), facecolors=b,label ='Job %i'%j)
+        
+        patches = []
+        jobkeys =[]
+        for j in range(NJ):
+            jobkeys.append('Job %i'%j)
+            patches.append(matplotlib.patches.Patch(color=mcolors[j]))             
+        jobkeys.append('$\Delta_{Mx}(t)$')
+        patches.append(matplotlib.lines.Line2D([0,0],[1,0],color="blue",linestyle=':',marker='^'))
+        jobkeys.append('CM')
+        patches.append(matplotlib.patches.Patch(color='black'))
+        jobkeys.append('PdM')
+        patches.append(matplotlib.patches.Patch(color='grey'))
+        
+        plt.legend(handles=patches, labels=jobkeys, fontsize=30,loc='center left', bbox_to_anchor=(1, 0.5))
+
+    #     for m in range(NM):
+    #         a = []
+    #         b = ()
+    #         for j in range(NJ):
+    #             for i in range(NOP[j]):
+    #                 if Y[j,i,m]>0: 
+    #                     for t in range(1,NP+1):
+    #                         if X[j,i,m,t]>0:
+    #                             plt.vlines(x=t, ymin=10*(m+1), ymax=10*(m+1)+3, color=mcolors[j])
+        if len(ZZ)>0:
+            for machine in range(NM):
+                a = []
+                b = ()
+                for t in range(1,math.ceil(objfun)):
+                    if ZZ[machine,t]==1:
+                        a.append((t-1,PMT))
+                        b = b + ('grey',)
+                        #plt.vlines(x=t, ymin=10*(machine+1), ymax=10*(machine+1)+3, color='black')
+                gnt.broken_barh(a, (yticks[machine]-2, 4), facecolors=b,label ='Maint')
+        else:
+            for machine in range(NM):
+                a = []
+                b = ()
+                if len(corr[machine])>0:
+                    a.append((corr[machine][0],CMT))
+                    b = b + ('black',)
+                gnt.broken_barh(a, (yticks[machine]-2, 4), facecolors=b,label ='Maint')
+        if len(ZZ)>0:
+            for machine in range(NM):
+                for t in range(1,math.ceil(objfun)+1):
+                    plt.plot(t,12*(machine)+10*DELTA[machine,t],"b^")
+                    if DELTA[machine,t+1]<DELTA[machine,t] or t==math.ceil(objfun):
+                        plt.text(t,12*(machine)+10*DELTA[machine,t]+0.5, r'%.2f' % DELTA[machine,t], fontsize=15,color="blue")
+                    x=[t-1,t,t]
+                    if t==1:
+                        y=[12*(machine),12*(machine),12*(machine)+10*DELTA[machine,t]]
+                    else :
+                        y=[12*(machine)+10*DELTA[machine,t-1],12*(machine)+10*DELTA[machine,t-1],12*(machine)+10*DELTA[machine,t]]
+                        if DELTA[machine,t]<=DELTA[machine,t-1]:
+                            x=[t-1,t-1,t]
+                            y=[12*(machine)+10*DELTA[machine,t-1],12*(machine)+10*DELTA[machine,t],12*(machine)+10*DELTA[machine,t]]
+                    plt.plot(x,y, linestyle = 'dotted',color="blue")
+        else:
+            DELTA2={}
+            print(corr)
+            for machine in [m for m in range(NM) if len(corr[m])>0]:
+                print(corr[machine])
+                for t in range(1,math.ceil(corr[machine][0]+1)):
+                    DELTA2[machine,t]=DELTA[machine,t]
+                for t in range(math.ceil(corr[machine][0]+1),math.ceil(corr[machine][0]+CMT+1)):
+                    DELTA2[machine,t]=0
+                for t in range(math.ceil(corr[machine][0]+CMT),math.ceil(objfun)+CMT+1):
+                    DELTA2[machine,t]=DELTA[machine,t-CMT]-DELTA[machine,corr[machine][0]]
+                
+                for t in range(1,math.ceil(objfun)+CMT+1):
+                    plt.plot(t,12*(machine)+10*DELTA2[machine,t],"b^")
+                    if t>1 and DELTA2[machine,t]<DELTA2[machine,t-1] or t==math.ceil(objfun)+CMT :
+                        plt.text(t-1,12*(machine)+10*DELTA2[machine,t-1]+0.5, r'%.2f' % DELTA2[machine,t-1], fontsize=15,color="blue")
+                    x=[t-1,t,t]
+                    if t==1:
+                        y=[12*(machine),12*(machine),12*(machine)+10*DELTA2[machine,t]]
+                    else : 
+                        y=[12*(machine)+10*DELTA2[machine,t-1],12*(machine)+10*DELTA2[machine,t-1],12*(machine)+10*DELTA2[machine,t]]
+                        if DELTA2[machine,t]<=DELTA2[machine,t-1]:
+                            x=[t-1,t-1,t]
+                            y=[12*(machine)+10*DELTA2[machine,t-1],12*(machine)+10*DELTA2[machine,t],12*(machine)+10*DELTA2[machine,t]]
+                    plt.plot(x,y, linestyle = 'dotted',color="blue")
+        plt.show()            

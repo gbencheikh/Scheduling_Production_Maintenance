@@ -1,0 +1,35 @@
+We take the same format as for literrature FJSP instance (see Brandimarte, P., 1993. Routing and scheduling in a flexible job shop by tabu search. Annals of Operations Research 41, 157–183.)
+-in the first line there are 2 numbers: the first is the number of jobs and the second the number of machines 
+
+-Every row represents one job: the first number is the number of operations of that job, the second number (let's say k>=1) is the number of machines that can process the first operation; then according to k, there are k pairs of numbers (machine,processing time) that specify which are the machines and the processing times; then the data for the second operation and so on...
+
+
+Example: BELTAIP 7x5 instance, 
+
+7	5
+B
+10	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 1 4 20 2 3 20 4 20 1 5 5 1 1 10
+E
+9	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 4 20 1 5 5 1 1 10
+L
+10	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 1 4 20 1 4 20 2 3 20 4 20 1 5 5 1 1 10
+T
+7	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 4 20 1 5 5 1 1 10 
+A
+10	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 4 20 1 4 20 2 3 20 4 20 1 5 5 1 1 10
+I
+7	1 1 10 2 2 20 3 20 2 2 20 3 20 1 4 20 2 3 20 4 20 1 5 5 1 1 10
+P
+7	1 1 10 2 2 20 3 20 2 2 20 3 20 2 2 20 3 20 2 2 20 4 20 1 5 5 1 1 10 
+
+first row = 7 jobs and 5 machines 
+second row: job 1 has 10 operations, the first operation can be processed by 1 machine that is machine 1 with processing time 10. The second operation can be processed by 2 machines that are machine 2 or 3 with processing time 20. 
+
+- In the benchmark, the transportation time between machines is taken into account. Data related to the distance is given in file Machines_distances. The first line is the number of machines. Each number in the matrix represent the distanece between two machines.
+5
+0	11	21	18	26
+27	0	13	10	18
+24	16	0	7	15
+20	12	22	0	11
+12	20	30	27	0  
+In the example, 11 is the distance between M1 and M2 in the AIP cell.
