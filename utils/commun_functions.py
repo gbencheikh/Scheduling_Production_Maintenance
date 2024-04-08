@@ -221,6 +221,51 @@ def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de
         voisins.append(voisin)
     return voisins
 
+def VoisinageRS(sol,ptimes):
+    voisinage=[]
+    for id,i in enumerate(sol):
+        for jid,j in enumerate(sol):
+            if jid>id:
+                voisin=sol
+                jobid_i=i[0]
+                opid_i=sum([sol[k][0]==jobid_i for k in range(id+1)])
+                mid_i=i[1]
+                jobid_j=j[0]
+                opid_j=sum([sol[k][0]==jobid_i for k in range(jid+1)])
+                mid_j=j[1]
+                if jobid_i !=jobid_j or mid_i != mid_j:
+                    op1=list(i)
+                    op2=list(j)
+                    temp=op1[0]
+                    op1[0]=op2[0]
+                    op2[0]=temp
+                    opid1=sum([sol[k][0]==op1[0] for k in range(id+1)])
+                    opid2=sum([sol[k][0]==op2[0] for k in range(jid+1)])
+                    compmach1=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op1[0] and oi==opid1]
+                    compmach2=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op2[0] and oi==opid2]
+                    if op1[1] not in compmach1:
+                        op1[1]= compmach1[0]
+                        duree=10000
+                        for _,m in enumerate(ptimes[op1[0]][opid1]):
+                            if m[1]<duree:
+                                duree=m[1]
+                                op1[1]=m[0]
+                    if op2[1] not in compmach2:
+                        op2[1]= compmach2[0]
+                        duree=10000
+                        for _,m in enumerate(ptimes[op2[0]][opid2]):
+                            if m[1]<duree:
+                                duree=m[1]
+                                op2[1]=m[0]
+                    voisin[id]=tuple(op1)
+                    voisin[jid]=tuple(op2)
+                    voisinage.append(voisin)
+    return voisinage
+
+
+
+    
+       
 
 
 def GenererSolution(data):
