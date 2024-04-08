@@ -107,12 +107,15 @@ class VNS:
                     x=x2
                     a,b,c,d,e,f=a1,b1,c2,d1,e1,f1
                     k=1
-                    if nbrV>2:
-                        nbrV=nbrV-1
+                    nbrV=1
+                    #if nbrV>2:
+                    #    nbrV=nbrV-1
                 else:
-                    k=k+1
+                    #k=k+1
                     if nbrV<10: 
                         nbrV=nbrV+1
+                    else:
+                        k=k+1
             if c<bestc:
                 besta,bestb,bestc,bestd,beste,bestf=a,b,c,d,e,f
             i=i+1
