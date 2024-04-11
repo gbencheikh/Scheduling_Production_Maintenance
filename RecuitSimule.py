@@ -40,14 +40,20 @@ class RS:
             for i in range(self.size_iteration):
                 #print(f"Iteration {iteration} current temperature: {temperature} ")
                 #print(f"Current solution: {current_solution} Cmax = {current_energy}")
-                neighbor_solution = commun_functions.Voisinage(current_solution, 1, 1, data_instance)[0]
-                neighbor_energy = commun_functions.evaluate(neighbor_solution,data_instance)[2]
-                #print(f"Current solution: {neighbor_solution} Cmax = {neighbor_energy}")
-                delta = neighbor_energy - best_energy
+                neighbor_solution = commun_functions.VoisinageRS(current_solution, data_instance.ProcTime)[0]
+                best_voisin = []
+                best_voisin_energy = float('inf')
+                for voisin in neighbor_solution: 
+                    energy = commun_functions.evaluate(voisin, data_instance)[2]
+                    if best_voisin_energy > energy:
+                        best_voisin = voisin
+                        best_voisin_energy = energy
+
+                delta = best_voisin_energy - best_energy
                 # accept the neighbor solution
                 if self.CritMetropolis(delta, temperature) == True: 
-                    current_solution = neighbor_solution
-                    current_energy = neighbor_energy
+                    current_solution = best_voisin
+                    current_energy = best_voisin_energy
                     
                 if current_energy < best_energy : 
                     best_solution = current_solution
@@ -63,20 +69,18 @@ class RS:
 
 # # Run the Simulated Annealing algorithm
     
-# instancefilename='Instances/Kacem1.fjs'
+instancefilename='Instances/Kacem1.fjs'
 
-# lambdaPM = 0.7
-# mu = 0.1
-# PM_time = 2
-# ProcTime=commun_functions.FJSInstanceReading(instancefilename)
+lambdaPM = 0.7
+mu = 0.1
+PM_time = 2
+ProcTime=commun_functions.FJSInstanceReading(instancefilename)
 
-# print("ProcTime=", ProcTime)
+data_instance = data.data(lambdaPM, mu, PM_time, ProcTime)
 
-# data_instance = data.data(lambdaPM, mu, PM_time, ProcTime)
-
-# initial_solution = commun_functions.GenererSolution(data_instance)
-# RS_instance = RS(initial_solution, 50, 0.1, 0.1, 100, 100)
-# best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
+initial_solution = commun_functions.GenererSolution(data_instance)
+RS_instance = RS(initial_solution, 50, 0.1, 0.1, 100, 100)
+best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
 
 # iterations = 100
 # x = [i for i in range(iterations)]
@@ -97,7 +101,7 @@ class RS:
 
 
 # print("intial Solution:", initial_solution)
-# print("Best Solution:", best_solution, "Best energy:", best_energy)
+print("Best Solution:", best_solution, "Best energy:", best_energy)
 # print("Number of iterations:", nb_iteration)
 # print("Solutions ", solutions)
 
