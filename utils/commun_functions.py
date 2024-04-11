@@ -245,9 +245,9 @@ def VoisinageRS(sol,ptimes):
                     opid2=sum([voisin[k][0]==op2[0] for k in range(jid)])
                     compmach1=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op1[0] and oi==opid1]
                     compmach2=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op2[0] and oi==opid2]
-                    print("i=",i," j=",j, " op1[0]=", op1[0]," opid1=", opid1, " op2[0]=", op2[0], " opid2=",opid2)
-                    print(compmach1)
-                    print(compmach2)
+                    #print("i=",i," j=",j, " op1[0]=", op1[0]," opid1=", opid1, " op2[0]=", op2[0], " opid2=",opid2)
+                    #print(compmach1)
+                    #print(compmach2)
                     if op1[1] not in compmach1:
                         op1[1]= compmach1[0]
                         duree=10000
