@@ -226,12 +226,12 @@ def VoisinageRS(sol,ptimes):
     for id,i in enumerate(sol):
         for jid,j in enumerate(sol):
             if jid>id:
-                voisin=sol
+                voisin=sol[:]
                 jobid_i=i[0]
-                opid_i=sum([sol[k][0]==jobid_i for k in range(id+1)])
+                opid_i=sum([sol[k][0]==jobid_i for k in range(id)])
                 mid_i=i[1]
                 jobid_j=j[0]
-                opid_j=sum([sol[k][0]==jobid_i for k in range(jid+1)])
+                opid_j=sum([sol[k][0]==jobid_j for k in range(jid)])
                 mid_j=j[1]
                 if jobid_i !=jobid_j or mid_i != mid_j:
                     op1=list(i)
@@ -239,10 +239,15 @@ def VoisinageRS(sol,ptimes):
                     temp=op1[0]
                     op1[0]=op2[0]
                     op2[0]=temp
-                    opid1=sum([sol[k][0]==op1[0] for k in range(id+1)])
-                    opid2=sum([sol[k][0]==op2[0] for k in range(jid+1)])
+                    voisin[id]=tuple(op1)
+                    voisin[jid]=tuple(op2)
+                    opid1=sum([voisin[k][0]==op1[0] for k in range(id)])
+                    opid2=sum([voisin[k][0]==op2[0] for k in range(jid)])
                     compmach1=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op1[0] and oi==opid1]
                     compmach2=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op2[0] and oi==opid2]
+                    #print("i=",i," j=",j, " op1[0]=", op1[0]," opid1=", opid1, " op2[0]=", op2[0], " opid2=",opid2)
+                    #print(compmach1)
+                    #print(compmach2)
                     if op1[1] not in compmach1:
                         op1[1]= compmach1[0]
                         duree=10000
@@ -261,11 +266,6 @@ def VoisinageRS(sol,ptimes):
                     voisin[jid]=tuple(op2)
                     voisinage.append(voisin)
     return voisinage
-
-
-
-    
-       
 
 
 def GenererSolution(data):
