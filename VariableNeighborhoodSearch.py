@@ -67,7 +67,7 @@ class VNS:
     def BasicVNS(self):
         tmax=self.maxTime
         kmax=self.kmax
-        print("*********** Basic VNS with kmax=",kmax, " tmax=",tmax,"***********")
+        
         t0 = time.perf_counter()
         i=0
         while time.perf_counter()-t0<tmax:
@@ -85,7 +85,11 @@ class VNS:
                 bestSol=x #x1[0]
                 bestCmax=c
                 if k%2==1:
-                    for _,ii in enumerate(commun_functions.Voisinage(x,k,nbrV,self.instance)):
+                    if nbrV==1:
+                        VoisinToExplore=commun_functions.VoisinageRS(x,self.instance.ProcTime)
+                    else:
+                        VoisinToExplore=commun_functions.Voisinage(x,k,nbrV,self.instance)
+                    for _,ii in enumerate(VoisinToExplore):
                         #xx.append(ii)
                         a0,b0,c0,d0,e0,f0=commun_functions.evaluate(ii,self.instance)
                         #print(vo, "Cmax=",c)
@@ -93,7 +97,11 @@ class VNS:
                             bestCmax=c0
                             bestSol=ii
                 else:
-                    for _,ii in enumerate(commun_functions.Voisinage2(x,k,nbrV,self.instance.ProcTime)):
+                    if nbrV==1:
+                        VoisinToExplore=commun_functions.VoisinageRS(x,self.instance.ProcTime)
+                    else:
+                        VoisinToExplore=commun_functions.Voisinage2(x,k,nbrV,self.instance.ProcTime)
+                    for _,ii in enumerate(VoisinToExplore):
                         #xx.append(ii)
                         a0,b0,c0,d0,e0,f0=commun_functions.evaluate(ii,self.instance)
                         #print(vo, "Cmax=",c)
@@ -119,6 +127,7 @@ class VNS:
             if c<bestc:
                 besta,bestb,bestc,bestd,beste,bestf=a,b,c,d,e,f
             i=i+1
+        print("*********** Basic VNS with kmax=",kmax, " tmax=",tmax,"***********", " Cmax=",bestc," Nbrmait=",[len(m) for mid,m in enumerate(beste)])
         return besta,bestb,bestc,bestd,beste,bestf,x   
     
 # instancefilename='Instances/Kacem1.fjs'
