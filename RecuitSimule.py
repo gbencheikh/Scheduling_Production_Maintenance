@@ -18,6 +18,7 @@ class RS:
         self.stopping_temperature = stopping_temperature
         self.size_iteration = size_iteration
         self.max_iterations = max_iterations 
+        self.execution_time = 0
 
     def CritMetropolis(self, delta, temperature):
         if delta <= 0: 
@@ -28,7 +29,7 @@ class RS:
             return False
     
     def simulated_annealing(self, data_instance):
-        print("Initial solution: ", self.initial_solution)
+        t0 = time.perf_counter()
         current_solution = self.initial_solution
         current_energy = commun_functions.evaluate(current_solution, data_instance)[2]
         best_solution = current_solution
@@ -38,11 +39,10 @@ class RS:
         iteration = 0
         while temperature > self.stopping_temperature:
             for i in range(self.size_iteration):
-                #print(f"Iteration {iteration} current temperature: {temperature} ")
-                #print(f"Current solution: {current_solution} Cmax = {current_energy}")
-                neighbor_solution = commun_functions.VoisinageRS(current_solution, data_instance.ProcTime)[0]
+                neighbor_solution = commun_functions.VoisinageRS(current_solution, data_instance.ProcTime)
                 best_voisin = []
                 best_voisin_energy = float('inf')
+
                 for voisin in neighbor_solution: 
                     energy = commun_functions.evaluate(voisin, data_instance)[2]
                     if best_voisin_energy > energy:
@@ -64,86 +64,73 @@ class RS:
             
             #update number of iterations 
             iteration += 1
+        t1 = time.perf_counter()
+        self.execution_time = t1 - t0
+
         return best_solution, best_energy, iteration
 
 
 # # Run the Simulated Annealing algorithm
-    
-instancefilename='Instances/Kacem1.fjs'
+def call_RS(data_instance):
+    best_solution = []
+    best_energy = float('inf')
 
-lambdaPM = 0.7
-mu = 0.1
-PM_time = 2
-ProcTime=commun_functions.FJSInstanceReading(instancefilename)
+    t0 = time.perf_counter()
+    temperature_initial = [50, 70]
+    temperature_final = [0.1, 0.2]
+    cooling_rate = [0.01, 0.02]
+    iterations = [50, 100]
 
-data_instance = data.data(lambdaPM, mu, PM_time, ProcTime)
+    total_execution_time = 0 
+    for i in range(4):
+        for tpi in temperature_initial:
+            for tpf in temperature_final:
+                for cr in cooling_rate: 
+                    for it in iterations:
+                        ti = time.perf_counter()
+                        if ti - t0 <= 120:
+                            initial_solution = commun_functions.GenererSolution(data_instance)
+                            RS_instance = RS(initial_solution, tpi, cr, tpf, it, it)
+                            solution, energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
 
-initial_solution = commun_functions.GenererSolution(data_instance)
-RS_instance = RS(initial_solution, 50, 0.1, 0.1, 100, 100)
-best_solution, best_energy, nb_iteration = RS_instance.simulated_annealing(data_instance)
+                            if(energy < best_energy):
+                                best_energy = energy
+                                best_solution = solution
+                                total_execution_time += RS_instance.execution_time
+                        else: 
+                            return best_solution, best_energy, total_execution_time
+                            
+    return best_solution, best_energy, total_execution_time               
 
-# iterations = 100
-# x = [i for i in range(iterations)]
+def test_RS(instancefilename):
+    lambdaPM = [0.8]
+    mu = [0]
+    PM_time = [2]
 
-# solutions = []
-# for i in range(iterations): 
-#     initial_solution = commun_functions.GenererSolution(data_instance)
-#     RS_instance = RS(initial_solution, 50, 0.1, 0.1, 10, 100)
+    print("lambda 	Mu	PM_time	Cmax	nb PM	Execution (s)")
+    for lbd in lambdaPM:
+        for m in mu: 
+            for pm in PM_time: 
+                ProcTime=commun_functions.FJSInstanceReading(instancefilename)
+                data_instance = data.data(lbd, m, pm, ProcTime)
 
-#     best_sub_solution, best_sub_energy, nb_sub_iteration = RS_instance.simulated_annealing(data_instance)
-    
-#     solutions.append(best_energy)
+                best_solution, best_energy, total_execution_time = call_RS(data_instance)
+                nb_PM = sum([len(m) for id, m in enumerate(commun_functions.evaluate(best_solution, data_instance)[4])])
 
-#     if best_sub_energy < best_energy : 
-#         best_solution = best_sub_solution
-#         best_energy = best_sub_energy
-#         nb_iteration = nb_sub_iteration
+                print(f"{lbd}   {m} {pm}    {best_energy}   {nb_PM} {total_execution_time}")
+                            
+test_RS('Instances/Kacem4.fjs')
 
+# solution_19 = [(9, 1), (8, 4), (3, 2), (3, 1), (9, 5), (6, 0), (1, 0), (8, 1), (2, 3), (4, 1), (4, 0), (1, 0), (5, 2), (6, 4), (0, 6), (9, 1), (7, 3), (2, 5), (5, 2), (2, 3), (7, 6), (5, 2), (7, 4), (6, 5), (0, 5), (8, 6), (3, 1), (4, 3), (0, 5)]
 
-# print("intial Solution:", initial_solution)
-print("Best Solution:", best_solution, "Best energy:", best_energy)
-# print("Number of iterations:", nb_iteration)
-# print("Solutions ", solutions)
+# NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
 
-# plt.plot(x, solutions, 'r-', label="RS")
-# plt.axhline(y=15, color="green")  # Barre horizontale
-
-# plt.grid(True)
-# plt.title("FJSP - 4J-7M (Recuit Simulé)")
-# plt.ylabel("Cmax")
-# plt.xlabel("Iterations")
-# plt.show()
-
-# # NM,NJ,cmax,schedule,maint,ehf = commun_functions.evaluate(best_solution,data_instance)
-
-# # print("Schedule=", schedule)
-
+# plotfilename= "results/Figs/%s/%s"  % ("Ghita",instancefilename)
 # # fileName = f"results/simulation_{time.strftime('%H%M%S')}_{int(time.time())}.jpg"
 
-# # Gantt = diagram.diagram(NM,NJ,data_instance.ProcTime,data_instance.mu,cmax,schedule,maint,ehf,fileName)
+# print(f"Production scedhuling: {schedule}")
+# print(f"Maintenance scedhuling: {maint}")
 
-# # print(f"Production scedhuling: {schedule}")
-# # print(f"Maintenance scedhuling: {maint}")
-
-
-# # Gantt.plotEHF()
-# # Gantt.plotGantt()
-
-# # Charger les images enregistrées
-# # image_gantt = Image.open(Gantt.ganttsavefilename)
-# # image_ehf = Image.open(Gantt.ehfplotsavefilename)
-
-# # # Afficher les deux images dans une seule fenêtre
-# # fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-
-# # ax[0].imshow(image_gantt)
-# # ax[0].axis('off')
-# # ax[0].set_title('Gantt Chart')
-
-# # ax[1].imshow(image_ehf)
-# # ax[1].axis('off')
-# # ax[1].set_title('EHF Chart')
-
-# # plt.show()
-
-
+# GanttRS = diagram.diagram(NM,NJ,data_instance.PM_time,data_instance.lambdaPM,data_instance.mu,cmax,schedule,maint,ehf, plotfilename,1,1)
+# GanttRS.plotGantt()
+# GanttRS.plotEHF2()
