@@ -1,7 +1,6 @@
 from utils import data
 from utils import diagram
 from utils import commun_functions
-from utils import data
 
 import random
 import math
@@ -11,7 +10,14 @@ import time
 
 class RS:
     def __init__(self, initial_solution, initial_temperature, cooling_rate, stopping_temperature, size_iteration, max_iterations):
-        # Simulated Annealing parameters
+        """ 
+            initial_solution: the initial solution.
+            initial_temperature: the initial temperature.
+            cooling_rate: the cooling rate.
+            stopping_temperature: the final temperature.
+            size_iteration: the size of one iteration of simulated annealing.
+            max_iterations: the total number of iterations.
+        """
         self.initial_solution = initial_solution
         self.initial_temperature = initial_temperature
         self.cooling_rate = cooling_rate
@@ -21,6 +27,17 @@ class RS:
         self.execution_time = 0
 
     def CritMetropolis(self, delta, temperature):
+        """
+        This function corresponds to the decision criterion.
+
+        Args:
+        delta: the difference between the current solution and the candidate solution
+        temperature: the current temperature
+
+        Returns:
+            True if the candidate solution is accepted, False otherwise
+        """
+
         if delta <= 0: 
             return True
         else:
@@ -28,10 +45,10 @@ class RS:
                 return True
             return False
     
-    def simulated_annealing(self, data_instance):
+    def simulated_annealing(self, data):
         t0 = time.perf_counter()
         current_solution = self.initial_solution
-        current_energy = commun_functions.evaluate(current_solution, data_instance)[2]
+        current_energy = commun_functions.evaluate(current_solution, data)[2]
         best_solution = current_solution
         best_energy = current_energy
         temperature = self.initial_temperature
@@ -39,12 +56,12 @@ class RS:
         iteration = 0
         while temperature > self.stopping_temperature:
             for i in range(self.size_iteration):
-                neighbor_solution = commun_functions.VoisinageRS(current_solution, data_instance.ProcTime)
+                neighbor_solution = commun_functions.VoisinageRS(current_solution, data.ProcTime)
                 best_voisin = []
                 best_voisin_energy = float('inf')
 
                 for voisin in neighbor_solution: 
-                    energy = commun_functions.evaluate(voisin, data_instance)[2]
+                    energy = commun_functions.evaluate(voisin, data)[2]
                     if best_voisin_energy > energy:
                         best_voisin = voisin
                         best_voisin_energy = energy
