@@ -27,7 +27,7 @@ class diagram:
 
         # Declaring a figure "gnt"
         fig, gnt = plt.subplots(figsize=(20, 10)) 
-        gnttitle="schedule %s $\mu$=%0.2f PMT=%d" % (self.pngfname,self.mu,self.PMT)
+        gnttitle="schedule %s $\lambda^{PM}$=%0.2f $\mu$=%0.2f PMT=%d" % (self.pngfname,self.lamda,self.mu,self.PMT)
         plt.title(gnttitle,fontsize=25 ) #MJGR
         gnt.minorticks_on()
         gnt.grid(which='major', linestyle='-', linewidth='0.5', color='grey')    # Customize the major grid
