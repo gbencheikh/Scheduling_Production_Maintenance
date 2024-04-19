@@ -94,13 +94,29 @@ def read_instance(instancefilename):
     return PRT
 
 def evaluate(Solution_, data):
+    """
+    This function evaluates the objective value of 'Solution'.
+
+    Args:
+        Solution: the solution to be evaluated
+        data: an object of type data that gathers all the data of the current instance
+
+    Returns:
+        NM: Number of machines
+        NJ: Number of jobs
+        cmax: the makespan
+        schedule: list of tasks executed on each machine with their start and end dates
+        maint: list of maintenance tasks scheduled for each machine
+        ehf: the degradation status of each machine at each instant t
+        uava: list of unavailability periods for each machine
+    """
+
     solution = Solution_[:]
-    """ Cette fonction pour évaluer les solutions """
     NM = max([t[1] for tid, t in enumerate(solution)]) + 1
     NJ = max([t[0] for tid,t in enumerate(solution)]) + 1
 
     ehf=[0 for i in range(NM)]
-    uava=[0 for i in range(NM)] #total unavailability duration
+    uava=[0 for i in range(NM)] 
     maint=[[],] 
     operid=[0 for j in range(NJ)]
     schedule=[[],]
@@ -175,9 +191,21 @@ def Voisinage(Solution_,LargV,NbrV,data): # trouver NbrV solutions voisines de S
             voisins.append(voisin)    
     return voisins
 
-def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de Solution dans un voisinage de largeur LargV
+def Voisinage2(Solution,LargV,NbrV,PTimes): 
+    """
+    This function finds 'NbrV' neighboring solutions of 'Solution' in a neighborhood of width 'LargV'.
+
+    Args:
+        NbrV: number of neighboring solutions to return
+        Solution: The solution in question
+        LargV: the width of the neighborhood
+
+    Returns:
+        voisins: list of neighbors
+    """
+
+
     voisins=[]
-    #print('LargV=',LargV,' NbrV=',NbrV)
     while len(voisins)<NbrV:
         voisin=[]
         selected_opers_sample=random.sample(range(len(Solution)),k=LargV)
@@ -185,11 +213,9 @@ def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de
         selected_opers_sample= sorted(selected_opers_sample)
         if LargV>1:
             while sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)])>0:
-                #print("sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)])=",sum([selected_opers_sorted[i]==selected_opers_sample[i] for i in range(LargV)]))
                 random.shuffle(selected_opers_sample)
         nbr=0
         for i,sol in enumerate(Solution):
-            #print("i=",i,"solution=",sol)
             jobid=sol[0]
             machid0=sol[1]
             if nbr<LargV:
@@ -204,13 +230,9 @@ def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de
         partvoisin=[]
         for i,sol in enumerate(voisin):
             partvoisin.append(sol)
-            #print(partvoisin)
             jid=sol[0]
             opid=sum([s[0]==jid for si,s in enumerate(partvoisin)])-1
-            #print(PTimes[jid])
             compmach=[om[0] for ji,job in enumerate(PTimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==jid and oi==opid]
-            #print("jid=",jid," opid=",opid," compach=",compmach)
-            #print("sol avant",sol)
             if sol[1] not in compmach:
                 newm=random.choice(compmach)
                 sol=(jid,newm)
@@ -221,55 +243,18 @@ def Voisinage2(Solution,LargV,NbrV,PTimes): # trouver NbrV solutions voisines de
         voisins.append(voisin)
     return voisins
 
-def VoisinageRS(sol,ptimes):
-    voisinage=[]
-    for id,i in enumerate(sol):
-        for jid,j in enumerate(sol):
-            if jid>id:
-                voisin=sol[:]
-                jobid_i=i[0]
-                opid_i=sum([sol[k][0]==jobid_i for k in range(id)])
-                mid_i=i[1]
-                jobid_j=j[0]
-                opid_j=sum([sol[k][0]==jobid_j for k in range(jid)])
-                mid_j=j[1]
-                if jobid_i !=jobid_j or mid_i != mid_j:
-                    op1=list(i)
-                    op2=list(j)
-                    temp=op1[0]
-                    op1[0]=op2[0]
-                    op2[0]=temp
-                    voisin[id]=tuple(op1)
-                    voisin[jid]=tuple(op2)
-                    opid1=sum([voisin[k][0]==op1[0] for k in range(id)])
-                    opid2=sum([voisin[k][0]==op2[0] for k in range(jid)])
-                    compmach1=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op1[0] and oi==opid1]
-                    compmach2=[om[0] for ji,job in enumerate(ptimes) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op2[0] and oi==opid2]
-                    #print("i=",i," j=",j, " op1[0]=", op1[0]," opid1=", opid1, " op2[0]=", op2[0], " opid2=",opid2)
-                    #print(compmach1)
-                    #print(compmach2)
-                    if op1[1] not in compmach1:
-                        op1[1]= compmach1[0]
-                        duree=10000
-                        for _,m in enumerate(ptimes[op1[0]][opid1]):
-                            if m[1]<duree:
-                                duree=m[1]
-                                op1[1]=m[0]
-                    if op2[1] not in compmach2:
-                        op2[1]= compmach2[0]
-                        duree=10000
-                        for _,m in enumerate(ptimes[op2[0]][opid2]):
-                            if m[1]<duree:
-                                duree=m[1]
-                                op2[1]=m[0]
-                    voisin[id]=tuple(op1)
-                    voisin[jid]=tuple(op2)
-                    voisinage.append(voisin)
-    return voisinage
-
-
 def GenererSolution(data):
-    sol=[]
+    """
+    A function that generates a random solution.
+
+    Args:
+        data: an instance
+
+    Returns:
+        Solution: a randomly constructed solution.
+    """
+
+    Solution=[]
     opers=[]
     for i,job in enumerate(data.ProcTime):
         for o,op in enumerate(job):
@@ -281,5 +266,59 @@ def GenererSolution(data):
         selectmach=compmach[0]
         if len(compmach)>1 : 
             selectmach=compmach[random.randint(0,len(compmach)-1)]
-        sol.append((j,selectmach))
-    return sol
+        Solution.append((j,selectmach))
+    return Solution
+
+def VoisinageRS(Solution,data):
+    """ Cette fonction permet de générer toutes les solutions voisines d'un point 
+    
+    Args:
+        Solution: The solution in question
+        data: an instance
+
+    Returns:
+        voisins: list of neighbors
+    
+    """
+    voisins=[]
+    for id,i in enumerate(Solution):
+        for jid,j in enumerate(Solution):
+            if jid>id:
+                voisin=Solution[:]
+                jobid_i=i[0]
+                opid_i=sum([Solution[k][0]==jobid_i for k in range(id)])
+                mid_i=i[1]
+                jobid_j=j[0]
+                opid_j=sum([Solution[k][0]==jobid_j for k in range(jid)])
+                mid_j=j[1]
+                if jobid_i !=jobid_j or mid_i != mid_j:
+                    op1=list(i)
+                    op2=list(j)
+                    temp=op1[0]
+                    op1[0]=op2[0]
+                    op2[0]=temp
+                    voisin[id]=tuple(op1)
+                    voisin[jid]=tuple(op2)
+                    opid1=sum([voisin[k][0]==op1[0] for k in range(id)])
+                    opid2=sum([voisin[k][0]==op2[0] for k in range(jid)])
+                    compmach1=[om[0] for ji,job in enumerate(data.ProcTime) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op1[0] and oi==opid1]
+                    compmach2=[om[0] for ji,job in enumerate(data.ProcTime) for oi,o in enumerate(job) for omi,om in enumerate(o) if ji==op2[0] and oi==opid2]
+                    
+                    if op1[1] not in compmach1:
+                        op1[1]= compmach1[0]
+                        duree=10000
+                        for _,m in enumerate(data.ProcTime[op1[0]][opid1]):
+                            if m[1]<duree:
+                                duree=m[1]
+                                op1[1]=m[0]
+                    if op2[1] not in compmach2:
+                        op2[1]= compmach2[0]
+                        duree=10000
+                        for _,m in enumerate(data.ProcTime[op2[0]][opid2]):
+                            if m[1]<duree:
+                                duree=m[1]
+                                op2[1]=m[0]
+                    voisin[id]=tuple(op1)
+                    voisin[jid]=tuple(op2)
+                    voisins.append(voisin)
+    return voisins
