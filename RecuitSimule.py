@@ -56,7 +56,7 @@ class RS:
         iteration = 0
         while temperature > self.stopping_temperature:
             for i in range(self.size_iteration):
-                neighbor_solution = commun_functions.VoisinageRS(current_solution, data.ProcTime)
+                neighbor_solution = commun_functions.VoisinageAll(current_solution, data)
                 best_voisin = []
                 best_voisin_energy = float('inf')
 

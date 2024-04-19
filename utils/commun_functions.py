@@ -269,7 +269,7 @@ def GenererSolution(data):
         Solution.append((j,selectmach))
     return Solution
 
-def VoisinageRS(Solution,data):
+def VoisinageAll(Solution, data):
     """ Cette fonction permet de générer toutes les solutions voisines d'un point 
     
     Args:
