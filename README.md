@@ -10,6 +10,7 @@ No specific requirement needed
 3. Algorithms
 - Variable Neighborhood Search (VNS)
 - Simulated Annealing (SA)
+- Tabu Search (TS)
 
 5. Input Format
 The provided class data contains attributes representing various parameters and data related to production and maintenance scheduling.
