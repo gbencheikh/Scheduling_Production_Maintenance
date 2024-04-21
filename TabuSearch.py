@@ -17,6 +17,11 @@ class TS:
 
     def tabu_search(self):
         t0 = time.perf_counter()
+        best_solution = self.initial_solution
+        best_solution_score = float('inf')
+
+        current_solution = self.initial_solution
+
         tabu_list = []
 
         for _ in range(self.max_iterations):
@@ -27,7 +32,7 @@ class TS:
 
             for neighbor in neighbors:
                 if neighbor not in tabu_list:
-                    neighbor_score = commun_functions.evaluate(neighbor, data)[2]
+                    neighbor_score = commun_functions.evaluate(neighbor, self.data)[2]
                     if neighbor_score < best_neighbor_score:
                         best_neighbor = neighbor
                         best_neighbor_score = neighbor_score
@@ -36,7 +41,7 @@ class TS:
                 break
 
             current_solution = best_neighbor
-            if commun_functions.evaluate(current_solution, data) < commun_functions.evaluate(best_solution, data):
+            if commun_functions.evaluate(best_neighbor, self.data)[2] < commun_functions.evaluate(best_solution, self.data)[2]:                
                 best_solution = current_solution
 
             tabu_list.append(best_neighbor)
@@ -64,7 +69,9 @@ def call_TS(data_instance):
                     initial_solution = commun_functions.GenererSolution(data_instance)
 
                     TS_instance = TS(data_instance, initial_solution, tls, ni)
-                    solution, energy, nb_iteration = TS_instance.tabu_search()
+                    solution = TS_instance.tabu_search()
+
+                    energy = commun_functions.evaluate(solution, data_instance)
 
                     if(energy < best_energy):
                         best_energy = energy
@@ -92,4 +99,20 @@ def test_TS(instancefilename):
 
                 print(f"{lbd}   {m} {pm}    {best_energy}   {nb_PM} {total_execution_time}")
                             
-test_TS('Instances/5_Kacem/Kacem4.fjs')
+
+instancefilename = 'Instances/5_Kacem/Kacem1.fjs'
+ProcTime=commun_functions.FJSInstanceReading(instancefilename)
+data_instance = data.data(0.8, 0.1, 2, ProcTime)
+
+
+initial_solution = commun_functions.GenererSolution(data_instance)
+TS_instance = TS(data_instance, initial_solution, 20, 100)
+solution = TS_instance.tabu_search()
+
+
+
+Cmax = commun_functions.evaluate(solution, data_instance)[2]
+
+print(f"Cmax = {Cmax}")
+
+# test_TS('Instances/5_Kacem/Kacem4.fjs')
