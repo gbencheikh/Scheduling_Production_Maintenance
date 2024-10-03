@@ -1,0 +1,128 @@
+{
+    "Cmax_x": 253,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 30,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 30,
+            "end": 86,
+            "rsc": "J3",
+            "label": "O3:1",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 25,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 25,
+            "end": 55,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 86,
+            "end": 156,
+            "rsc": "J3",
+            "label": "O3:2",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 3",
+            "start": 55,
+            "end": 215,
+            "rsc": "J1",
+            "label": "O1:3",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 4",
+            "start": 30,
+            "end": 85,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 4",
+            "start": 85,
+            "end": 163,
+            "rsc": "J2",
+            "label": "O2:3",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 4",
+            "start": 163,
+            "end": 253,
+            "rsc": "J3",
+            "label": "O3:3",
+            "info": "J3"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            0.95,
+            0.95
+        ],
+        [
+            1.0,
+            1.0,
+            1.0,
+            0.94
+        ],
+        [
+            1.0,
+            0.98,
+            0.89,
+            0.76
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                2,
+                3
+            ]
+        ],
+        [
+            [
+                0,
+                5,
+                9,
+                17
+            ]
+        ],
+        [
+            [
+                0,
+                9
+            ]
+        ],
+        [
+            [
+                0,
+                6,
+                13,
+                21
+            ]
+        ]
+    ]
+}

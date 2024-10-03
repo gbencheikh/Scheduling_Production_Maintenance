@@ -1,0 +1,288 @@
+{
+    "Cmax_x": 13,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 6,
+            "end": 10,
+            "rsc": "J1",
+            "label": "O1:3",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 1",
+            "start": 10,
+            "end": 12,
+            "rsc": "J3",
+            "label": "O3:3",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 2,
+            "end": 6,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 8,
+            "end": 9,
+            "rsc": "J3",
+            "label": "O3:2",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 6,
+            "end": 8,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (dur\u00e9e=2)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 0,
+            "end": 4,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 5,
+            "end": 7,
+            "rsc": "J4",
+            "label": "O4:1",
+            "info": "J4"
+        },
+        {
+            "task": "Machine 3",
+            "start": 9,
+            "end": 13,
+            "rsc": "J2",
+            "label": "O2:3",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 4,
+            "end": 5,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 7,
+            "end": 8,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)\nComposant : 2 (dur\u00e9e=2)\nComposant : 3 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 7,
+            "end": 9,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)\nComposant : 2 (dur\u00e9e=2)\nComposant : 3 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 7,
+            "end": 8,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)\nComposant : 2 (dur\u00e9e=2)\nComposant : 3 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 4",
+            "start": 0,
+            "end": 7,
+            "rsc": "J3",
+            "label": "O3:1",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 4",
+            "start": 12,
+            "end": 13,
+            "rsc": "J3",
+            "label": "O3:4",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 4",
+            "start": 7,
+            "end": 12,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 3 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 5",
+            "start": 0,
+            "end": 2,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 5",
+            "start": 4,
+            "end": 9,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 5",
+            "start": 11,
+            "end": 13,
+            "rsc": "J4",
+            "label": "O4:2",
+            "info": "J4"
+        },
+        {
+            "task": "Machine 5",
+            "start": 2,
+            "end": 4,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 3 (dur\u00e9e=2)"
+        },
+        {
+            "task": "Machine 5",
+            "start": 9,
+            "end": 11,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=2)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            0.92,
+            0.92
+        ],
+        [
+            1.0,
+            1.0,
+            0.99,
+            0.925,
+            0.9
+        ],
+        [
+            1.0,
+            0.935,
+            0.8550000000000001
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                7,
+                17
+            ],
+            [
+                0,
+                6,
+                11
+            ]
+        ],
+        [
+            [
+                0,
+                2,
+                6
+            ],
+            [
+                0,
+                6,
+                0,
+                9
+            ]
+        ],
+        [
+            [
+                0,
+                8,
+                0,
+                9,
+                0,
+                3
+            ],
+            [
+                0,
+                5,
+                11,
+                0,
+                10
+            ],
+            [
+                0,
+                8,
+                18,
+                0,
+                3
+            ]
+        ],
+        [
+            [
+                0,
+                3,
+                5
+            ],
+            [
+                0,
+                2,
+                10
+            ],
+            [
+                0,
+                10,
+                0,
+                9
+            ]
+        ],
+        [
+            [
+                0,
+                6,
+                11,
+                0,
+                3
+            ],
+            [
+                0,
+                7,
+                9,
+                14
+            ],
+            [
+                0,
+                8,
+                0,
+                2,
+                7
+            ],
+            [
+                0,
+                3,
+                5,
+                14
+            ]
+        ]
+    ]
+}

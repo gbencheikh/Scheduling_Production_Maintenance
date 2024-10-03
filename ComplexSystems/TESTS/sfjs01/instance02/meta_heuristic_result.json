@@ -1,0 +1,93 @@
+{
+    "Cmax_x": 71,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 45,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 50,
+            "end": 71,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 45,
+            "end": 50,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 37,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 47,
+            "end": 71,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 37,
+            "end": 47,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=10)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            0.9299999999999999
+        ],
+        [
+            1.0,
+            1.0,
+            0.94
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                7,
+                0,
+                9
+            ],
+            [
+                0,
+                6,
+                19
+            ]
+        ],
+        [
+            [
+                0,
+                10,
+                0,
+                11
+            ],
+            [
+                0,
+                7,
+                19
+            ]
+        ]
+    ]
+}

@@ -1,0 +1,57 @@
+{
+    "Cmax_x": 71.0,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0.0,
+            "end": 45.0,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 50.0,
+            "end": 71.0,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 45.0,
+            "end": 50.0,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0.0,
+            "end": 37.0,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 47.0,
+            "end": 71.0,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 37.0,
+            "end": 47.0,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=10)"
+        }
+    ],
+    "quality": [
+        0.93,
+        0.94
+    ]
+}

@@ -1,0 +1,38 @@
+##### 1
+nbMachines = 5
+nbJobs = 3
+nbOperationsParJob = [3, 3, 3]
+nbComposants = [1, 1, 1, 1, 1]
+degradations = [
+  [[[0, inf, inf], [0, inf, inf], [0, inf, inf]]],
+  [[[0, 0, inf], [inf, 0, inf], [0, inf, inf]]],
+  [[[inf, inf, inf], [0, 0, 0], [inf, 0, inf]]],
+  [[[inf, 0, 0], [inf, inf, inf], [inf, 0, 0]]],
+  [[[inf, inf, 0], [inf, inf, 0], [inf, inf, 0]]]
+
+]
+seuils_degradation = [
+    [10],
+    [15],
+    [10],
+    [15],
+    [10]
+]
+dureeMaintenances = [
+    [5],
+    [5],
+    [5],
+    [5],
+    [5]
+]
+
+##### 2
+
+
+##### 3
+
+
+##### 4
+
+
+##### 5

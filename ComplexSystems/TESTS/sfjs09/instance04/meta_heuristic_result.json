@@ -1,0 +1,177 @@
+{
+    "Cmax_x": 220,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 50,
+            "rsc": "J3",
+            "label": "O3:1",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 55,
+            "end": 95,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 1",
+            "start": 100,
+            "end": 150,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 50,
+            "end": 55,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 95,
+            "end": 100,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 25,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 50,
+            "end": 120,
+            "rsc": "J3",
+            "label": "O3:2",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 125,
+            "end": 215,
+            "rsc": "J3",
+            "label": "O3:3",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 25,
+            "end": 30,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 120,
+            "end": 125,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 0,
+            "end": 50,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 95,
+            "end": 155,
+            "rsc": "J1",
+            "label": "O1:3",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 3",
+            "start": 160,
+            "end": 220,
+            "rsc": "J2",
+            "label": "O2:3",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 50,
+            "end": 55,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 155,
+            "end": 160,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                23,
+                0,
+                20,
+                0,
+                22
+            ]
+        ],
+        [
+            [
+                0,
+                24,
+                0,
+                19,
+                0,
+                20
+            ]
+        ],
+        [
+            [
+                0,
+                22,
+                0,
+                21,
+                0,
+                23
+            ]
+        ]
+    ]
+}

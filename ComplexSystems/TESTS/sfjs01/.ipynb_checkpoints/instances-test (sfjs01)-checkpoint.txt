@@ -1,0 +1,101 @@
+##### 1
+nbMachines = 2
+nbJobs = 2
+nbOperationsParJob = [2, 2]
+nbComposants = [2, 2]
+degradations = [
+  [[[3, 7], [5, 9]],
+   [[2, 8], [6, 4]]
+],
+  [[[4, 6], [7, 3]],
+   [[9, 5], [2, 10]]]
+]
+seuils_degradation = [
+    [5, 10],
+    [5, 10]
+]
+dureeMaintenances = [
+    [5, 10],
+    [10, 5]
+]
+
+##### 2
+nbMachines = 2
+nbJobs = 2
+nbOperationsParJob = [2, 2]
+nbComposants = [2, 2]
+degradations = [
+  [[[12, 14], [7, 9]],
+   [[8, 10], [6, 13]]],
+  [[[10, 11], [14, 8]],
+   [[7, 12], [9, 15]]]
+]
+seuils_degradation = [
+    [5, 10],
+    [5, 10]
+]
+dureeMaintenances = [
+    [5, 10],
+    [10, 5]
+]
+
+
+##### 3
+nbMachines = 2
+nbJobs = 2
+nbOperationsParJob = [2, 2]
+nbComposants = [2, 2]
+degradations = [
+  [[[18, 15], [13, 12]],
+   [[11, 19], [14, 16]]],
+  [[[17, 11], [19, 14]],
+   [[13, 18], [16, 20]]]
+]
+seuils_degradation = [
+    [5, 10],
+    [5, 10]
+]
+dureeMaintenances = [
+    [5, 10],
+    [10, 5]
+]
+
+##### 4
+nbMachines = 2
+nbJobs = 2
+nbOperationsParJob = [2, 2]
+nbComposants = [2, 2]
+degradations = [
+  [[[22, 24], [17, 16]],
+   [[20, 18], [19, 23]]],
+  [[[24, 21], [18, 22]],
+   [[21, 17], [23, 25]]]
+]
+seuils_degradation = [
+    [5, 10],
+    [5, 10]
+]
+dureeMaintenances = [
+    [5, 10],
+    [10, 5]
+]
+
+##### 5
+nbMachines = 2
+nbJobs = 2
+nbOperationsParJob = [2, 2]
+nbComposants = [2, 2]
+degradations = [
+  [[[28, 25], [21, 29]],
+   [[24, 27], [22, 26]]],
+  [[[30, 22], [28, 24]],
+   [[23, 26], [27, 30]]]
+]
+seuils_degradation = [
+    [5, 10],
+    [5, 10]
+]
+dureeMaintenances = [
+    [5, 10],
+    [10, 5]
+]

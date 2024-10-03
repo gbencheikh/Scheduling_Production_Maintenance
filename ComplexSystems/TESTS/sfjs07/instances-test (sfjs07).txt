@@ -1,0 +1,77 @@
+##### 1
+nbMachines = 5
+nbJobs = 3
+nbOperationsParJob = [3, 3, 3]
+nbComposants = [1, 1, 1, 1, 1]
+degradations = nbComposants = [1, 1, 1, 1, 1]
+degradations = [
+  [[[3, inf, inf], [5, inf, inf], [1, inf, inf]]],
+  [[[2, 4, inf], [inf, 7, inf], [6, inf, inf]]],
+  [[[inf, inf, inf], [8, 9, 10], [inf, 11, inf]]],
+  [[[inf, 2, 3], [inf, inf, inf], [inf, 1, 4]]],
+  [[[inf, inf, 5], [inf, inf, 6], [inf, inf, 7]]]
+]
+seuils_degradation = [
+    [10],
+    [15],
+    [10],
+    [15],
+    [10]
+]
+dureeMaintenances = [
+    [5],
+    [5],
+    [5],
+    [5],
+    [5]
+]
+seuils_degradation = [
+    [10],
+    [15],
+    [10],
+    [15],
+    [10]
+]
+dureeMaintenances = [
+    [5],
+    [5],
+    [5],
+    [5],
+    [5]
+]
+
+##### 2
+[
+  [[[12, inf, inf], [7, inf, inf], [8, inf, inf]]],
+  [[[6, 10, inf], [inf, 14, inf], [9, inf, inf]]],
+  [[[inf, inf, inf], [15, 13, 11], [inf, 12, inf]]],
+  [[[inf, 7, 9], [inf, inf, inf], [inf, 8, 6]]],
+  [[[inf, inf, 13], [inf, inf, 12], [inf, inf, 15]]]
+]
+
+##### 3
+[
+  [[[18, inf, inf], [13, inf, inf], [11, inf, inf]]],
+  [[[17, 16, inf], [inf, 19, inf], [12, inf, inf]]],
+  [[[inf, inf, inf], [20, 18, 14], [inf, 15, inf]]],
+  [[[inf, 11, 10], [inf, inf, inf], [inf, 9, 8]]],
+  [[[inf, inf, 17], [inf, inf, 16], [inf, inf, 19]]]
+]
+
+##### 4
+[
+  [[[22, inf, inf], [17, inf, inf], [19, inf, inf]]],
+  [[[21, 24, inf], [inf, 23, inf], [18, inf, inf]]],
+  [[[inf, inf, inf], [25, 22, 16], [inf, 17, inf]]],
+  [[[inf, 20, 23], [inf, inf, inf], [inf, 21, 19]]],
+  [[[inf, inf, 24], [inf, inf, 25], [inf, inf, 22]]]
+]
+
+##### 5
+[
+  [[[28, inf, inf], [21, inf, inf], [22, inf, inf]]],
+  [[[27, 26, inf], [inf, 29, inf], [23, inf, inf]]],
+  [[[inf, inf, inf], [30, 27, 28], [inf, 24, inf]]],
+  [[[inf, 25, 27], [inf, inf, inf], [inf, 26, 29]]],
+  [[[inf, inf, 30], [inf, inf, 31], [inf, inf, 28]]]
+]

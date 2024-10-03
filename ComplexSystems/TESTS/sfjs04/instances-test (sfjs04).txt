@@ -1,0 +1,91 @@
+inf = 9999
+##### 1
+nbMachines = 2
+nbJobs = 3
+nbOperationsParJob = [2, 2, 2]
+nbComposants = [1, 1]
+degradations = [
+  [[[3, 7], [inf, inf], [1, 9]]],
+  [[[4, 5], [7, 3], [2, 8]]]
+]
+seuils_degradation = [
+    [10],
+    [15]
+]
+dureeMaintenances = [
+    [5],
+    [7]
+]
+
+
+##### 2
+nbMachines = 2
+nbJobs = 3
+nbOperationsParJob = [2, 2, 2]
+nbComposants = [1, 1]
+degradations = [
+  [[[12, 14], [inf, inf], [8, 15]]],
+  [[[10, 11], [14, 8], [11, 13]]]
+]
+seuils_degradation = [
+    [10],
+    [15]
+]
+dureeMaintenances = [
+    [5],
+    [7]
+]
+
+##### 3
+nbMachines = 2
+nbJobs = 3
+nbOperationsParJob = [2, 2, 2]
+nbComposants = [1, 1]
+degradations = [
+  [[[18, 15], [inf, inf], [11, 19]]],
+  [[[17, 16], [19, 14], [16, 18]]]
+]
+seuils_degradation = [
+    [10],
+    [15]
+]
+dureeMaintenances = [
+    [5],
+    [7]
+]
+
+##### 4
+nbMachines = 2
+nbJobs = 3
+nbOperationsParJob = [2, 2, 2]
+nbComposants = [1, 1]
+degradations = [
+  [[[22, 24], [inf, inf], [19, 23]]],
+  [[[24, 21], [18, 22], [20, 21]]]
+]
+seuils_degradation = [
+    [10],
+    [15]
+]
+dureeMaintenances = [
+    [5],
+    [7]
+]
+
+##### 5
+nbMachines = 2
+nbJobs = 3
+nbOperationsParJob = [2, 2, 2]
+nbComposants = [1, 1]
+degradations = [
+  [[[28, 25], [inf, inf], [22, 29]]],
+  [[[30, 28], [24, 27], [27, 26]]]
+]
+seuils_degradation = [
+    [10],
+    [15]
+]
+dureeMaintenances = [
+    [5],
+    [7]
+]

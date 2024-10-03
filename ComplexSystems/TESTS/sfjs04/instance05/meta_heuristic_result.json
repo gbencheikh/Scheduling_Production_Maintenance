@@ -1,0 +1,124 @@
+{
+    "Cmax_x": 365,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 125,
+            "rsc": "J3",
+            "label": "O3:1",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 130,
+            "end": 217,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 1",
+            "start": 222,
+            "end": 365,
+            "rsc": "J3",
+            "label": "O3:2",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 125,
+            "end": 130,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 217,
+            "end": 222,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 63,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 70,
+            "end": 190,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 197,
+            "end": 349,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 63,
+            "end": 70,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=7)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 190,
+            "end": 197,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=7)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            1.0
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                22,
+                0,
+                25,
+                0,
+                29
+            ]
+        ],
+        [
+            [
+                0,
+                30,
+                0,
+                24,
+                0,
+                27
+            ]
+        ]
+    ]
+}

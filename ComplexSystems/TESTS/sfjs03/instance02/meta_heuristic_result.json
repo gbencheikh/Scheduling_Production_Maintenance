@@ -1,0 +1,130 @@
+{
+    "Cmax_x": 236,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 43,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 1",
+            "start": 48,
+            "end": 173,
+            "rsc": "J3",
+            "label": "O3:1",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 173,
+            "end": 216,
+            "rsc": "J3",
+            "label": "O3:2",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 43,
+            "end": 48,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 53,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 58,
+            "end": 131,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 141,
+            "end": 236,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 53,
+            "end": 58,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 131,
+            "end": 136,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)\nComposant : 2 (dur\u00e9e=10)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 131,
+            "end": 141,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)\nComposant : 2 (dur\u00e9e=10)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            0.91
+        ],
+        [
+            1.0,
+            1.0,
+            0.92
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                12,
+                0,
+                8,
+                23
+            ]
+        ],
+        [
+            [
+                0,
+                14,
+                0,
+                8,
+                0,
+                10
+            ],
+            [
+                0,
+                9,
+                24,
+                0,
+                12
+            ]
+        ]
+    ]
+}

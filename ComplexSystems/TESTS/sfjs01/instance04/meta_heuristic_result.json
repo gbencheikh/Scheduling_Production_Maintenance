@@ -1,0 +1,111 @@
+{
+    "Cmax_x": 76,
+    "fig": [
+        {
+            "task": "Machine 1",
+            "start": 0,
+            "end": 45,
+            "rsc": "J2",
+            "label": "O2:1",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 55,
+            "end": 76,
+            "rsc": "J2",
+            "label": "O2:2",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 1",
+            "start": 45,
+            "end": 50,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)\nComposant : 2 (dur\u00e9e=10)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 45,
+            "end": 55,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=5)\nComposant : 2 (dur\u00e9e=10)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 37,
+            "rsc": "J1",
+            "label": "O1:1",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 47,
+            "end": 71,
+            "rsc": "J1",
+            "label": "O1:2",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 2",
+            "start": 37,
+            "end": 47,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=10)\nComposant : 2 (dur\u00e9e=5)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 37,
+            "end": 42,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=10)\nComposant : 2 (dur\u00e9e=5)"
+        }
+    ],
+    "quality": [
+        [
+            1.0,
+            1.0,
+            1.0
+        ],
+        [
+            1.0,
+            1.0,
+            1.0
+        ]
+    ],
+    "degradations": [
+        [
+            [
+                0,
+                17,
+                0,
+                16
+            ],
+            [
+                0,
+                19,
+                0,
+                23
+            ]
+        ],
+        [
+            [
+                0,
+                24,
+                0,
+                21
+            ],
+            [
+                0,
+                21,
+                0,
+                17
+            ]
+        ]
+    ]
+}
