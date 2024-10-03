@@ -63,16 +63,21 @@ def parse_operations_file(filename, inf=9999):
     nbOperationsParJob = []
     dureeOperations = [[[] for j in range(nbJobs)] for k in range(nbMachines)]
     j = 0
+    processingTimes=[]
     # Parcourir les lignes restantes pour extraire les données
     for line in lines[1:]:
+        processingTimes.append([])
         parts = list(map(int, line.split()))
         index = 0
         nb_operations = parts[index]  # La première valeur est le nombre d'opérations par job
         nbOperationsParJob.append(nb_operations)
+        
         for k_ in range(nbMachines):
             for _ in range(nb_operations):
                 dureeOperations[k_][j].append(inf)
+        
         for i in range(nb_operations):
+            processingTimes[j].append([])
             index += 1  # Commencer après le nombre d'opérations
             k_max = parts[index]
             for k in range(k_max):
@@ -81,5 +86,6 @@ def parse_operations_file(filename, inf=9999):
                 index += 1
                 duree = parts[index]
                 dureeOperations[num_machine][j][i] = duree
+                processingTimes[j][i].append((num_machine,duree))
         j += 1
-    return nbJobs, nbMachines, nbOperationsParJob, dureeOperations
+    return nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes
