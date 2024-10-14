@@ -1,3 +1,5 @@
+import copy
+
 def parse_degradations_file(filename, inf=99999):
     line_num = 0
     # Lire les lignes du fichier
@@ -97,3 +99,55 @@ def parse_operations_file(filename, inf=9999):
                 processingTimes[j][i].append((num_machine,duree))
         j += 1
     return nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes
+
+def completionTime(data, solution, alpha_kl, Qjmin):
+    maxComposants = max(data.nbComposants)
+    iter = [0 for j in range(data.nbJobs)]
+    i_s = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
+    t_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
+    c_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
+    D_kl = [[[0] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
+    Qj = [[1.0]  for j in range(data.nbJobs)]
+    y = copy.deepcopy(solution[2])
+    dispo_machines = [0 for _ in range(data.nbMachines)]
+    
+    for ind in range(sum(data.nbOperationsParJob)):
+        k = solution[1][ind]
+        j = solution[0][ind]
+        i_s[ind] = iter[j]
+        i = i_s[ind]
+        if i != 0 :
+            t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
+        else :
+            t_ij[j][i] = dispo_machines[k]
+        c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
+        temp_var = 0
+        for l in range(data.nbComposants[k]):
+            ind_ = ind-1
+            while(ind_ >= 0) :
+                if solution[1][ind_] == k:
+                    j_ = solution[0][ind_]
+                    i_ = i_s[ind_]
+                    if y[l][j_][i_]:
+                        D_kl[k][l].append(0)
+                    break
+                ind_ -= 1
+            temp_var += D_kl[k][l][-1]*alpha_kl[k][l]
+            D_kl[k][l].append( D_kl[k][l][-1] + data.degradations[k][l][j][i])
+            y[l][j][i] = True if(D_kl[k][l][-1] > data.seuils_degradation[k][l]) else y[l][j][i]
+        dispo_machines[k] = c_ij[j][i] + max(y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k]))
+        Qj[j].append(Qj[j][-1]-temp_var)
+        iter[j] += 1
+    Cmax = max(c_ij[j][data.nbOperationsParJob[j]-1] for j in range(data.nbJobs))
+    nbMaintenance=0
+    for l in range(maxComposants):
+        for j in range(data.nbJobs):
+            for i in range(data.nbOperationsParJob[j]):
+                if y[l][j][i]:
+                    nbMaintenance += 1
+    penality = 0
+    for j in range(data.nbJobs):
+        if Qj[j][-1] > Qjmin[j]:
+            penality += 1
+    cout = 0.8*Cmax + 0.1*nbMaintenance + 0.1*penality
+    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout
