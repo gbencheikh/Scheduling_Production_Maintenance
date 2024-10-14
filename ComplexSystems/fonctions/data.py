@@ -123,19 +123,18 @@ class Data:
         """
         return (f"Data with {self.nbJobs} jobs, {self.nbMachines} machines")
 
-from CommonFunctions import parse_degradations_file, parse_operations_file
+# from CommonFunctions import parse_degradations_file, parse_operations_file
 
-if __name__ == "__main__": 
-    nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k1/k1.txt")
-    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k1/instance01/instance.txt")
+# if __name__ == "__main__": 
+#     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k1/k1.txt")
+#     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k1/instance01/instance.txt")
 
-    data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
-    print("String representation (__str__):")
-    print(data)
+#     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
+#     print("String representation (__str__):")
+#     print(data)
     
-    print("\nDetailed representation (__repr__):")
-    print(repr(data))
+#     print("\nDetailed representation (__repr__):")
+#     print(repr(data))
 
-    print(f"degration 2: {degradations2}")
-    print(f"len degradation2 {len(degradations2)}")
-    
+#     print(f"degration 2: {degradations2}")
+#     print(f"len degradation2 {len(degradations2)}")
