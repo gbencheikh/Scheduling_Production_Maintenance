@@ -13,6 +13,8 @@ def parse_degradations_file(filename, inf=99999):
     seuils_degradation = [[] for _ in range(nbMachines)]
     dureeMaintenances = [[] for _ in range(nbMachines)]
     degradations = [[] for _ in range(nbMachines)]
+    degradations_2 = []
+
     # Parcourir les lignes restantes pour extraire les données
     for loop1 in range(nbMachines):
         line = lines[line_num]
@@ -22,12 +24,14 @@ def parse_degradations_file(filename, inf=99999):
         seuils_degradation[idmac] = [0 for _ in range(nbcmp)]
         dureeMaintenances[idmac] = [0 for _ in range(nbcmp)]
         degradations[idmac] = [[[] for __ in range(nbJobs)] for _ in range(nbcmp)]
+        
         for loop2 in range(nbcmp):
             line = lines[line_num]
             line_num+=1
             idcmp, seuil, dureemaint = list(map(int, line.split()))
             seuils_degradation[idmac][idcmp] = seuil
             dureeMaintenances[idmac][idcmp] = dureemaint
+            
             for loop3 in range(nbjmac):
                 col_num = 0
                 line = lines[line_num]
@@ -40,16 +44,20 @@ def parse_degradations_file(filename, inf=99999):
                 nbopmac = data[col_num]
                 col_num+=1
                 degradations[idmac][idcmp][idj] = [inf for _ in range(nbop)]
+                temp = []
                 for loop4 in range(nbopmac):
                     idop = data[col_num]
                     col_num+=1
                     deg = data[col_num]
                     col_num+=1
                     degradations[idmac][idcmp][idj][idop] = deg
+                    temp.append((idop,deg))
+
+                degradations_2.append([idj, nbop, nbopmac, temp])
 
     max_len = max(len(ligne) for ligne in dureeMaintenances)
     dureeMaintenances = [ligne + [0] * (max_len - len(ligne)) for ligne in dureeMaintenances]
-    return nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations
+    return nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations_2
 
 def parse_operations_file(filename, inf=9999):
     # Lire les lignes du fichier

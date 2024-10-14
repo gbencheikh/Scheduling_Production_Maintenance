@@ -22,7 +22,7 @@ class Data:
         Nested list where each sublist contains the durations of each operation for the corresponding job.
     """
     
-    def __init__(self, nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, nbOperationsParJob, dureeOperations, processingTimes):
+    def __init__(self, nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes):
         """
         Constructs all the necessary attributes for the Data object.
 
@@ -38,7 +38,9 @@ class Data:
             List of degradation thresholds per component.
         dureeMaintenances : list of int
             Maintenance duration for each component.
-        degradations : list of int
+        !degradations : list of int
+            Current degradation levels for each component.
+        !degradations2 : list of int
             Current degradation levels for each component.
         nbOperationsParJob : list of int
             Number of operations required for each job.
@@ -53,6 +55,7 @@ class Data:
         self.seuils_degradation = seuils_degradation
         self.dureeMaintenances = dureeMaintenances
         self.degradations = degradations
+        self.degradations2 = degradations2
         self.nbOperationsParJob = nbOperationsParJob
         self.dureeOperations = dureeOperations
         self.processingTimes = processingTimes
@@ -68,17 +71,21 @@ class Data:
         """
         machines_repr = ""
         machines_repr += "\n"
-        machines_repr += f"{'Machine':<10}{'Number of Components':<25}{'Degradation Thresholds'} \n"
-        machines_repr += ("-" * 60)
+        machines_repr += f"{'Machine':<10}{'Number of Components':<25}{'Degradation Thresholds':<25}{'Maintenance duration':<25}\n"
+        machines_repr += ("-" * 80)
         machines_repr += "\n" # Blank line between jobs for clarity
 
         # Print each machine's details
-        for i, (composants, seuils) in enumerate(zip(self.nbComposants, self.seuils_degradation)):
-            machines_repr+= (f"{'M' + str(i+1):<10}{str(composants):<25}{str(seuils)} \n")
+        for i, (composants, seuils, duration) in enumerate(zip(self.nbComposants, self.seuils_degradation, self.dureeMaintenances)):
+            machines_repr+= (f"{'M' + str(i+1):<10}{str(composants):<25}{str(seuils):<25}")
+            # Affiche seulement les durées correspondant au nombre de composants
+            machines_repr += f"{str(duration[:composants]):<25}"
+            
+            machines_repr+="\n"    
 
         jobs_repr = ""
         jobs_repr += "\n" # Blank line between jobs for clarity
-        jobs_repr += (f"{'Job':<10}{'Operation (Machine, Duration)'}\n")
+        jobs_repr += (f"{'Job':<10}{'Operation (Machine, Duration)':<18}{'(Component degradation)':<25}\n")
         jobs_repr += ("-" * 40)
         jobs_repr += "\n"  
 
@@ -87,11 +94,21 @@ class Data:
         for job_index, job in enumerate(self.processingTimes):
             for operation_index, operation in enumerate(job):
                 for machine, duration in operation:
-                    jobs_repr += (f"J{job_index+1:<10} Op {operation_index+1:<8} M{machine+1:<8} {duration}\n")
-            
+                    jobs_repr += (f"J{job_index+1:<10} Op {operation_index+1:<5} M{machine+1:<8} {duration:<8}")
+                
+                    # Accéder aux dégradations pour chaque composant
+                    for index_machine, degradation in enumerate(self.degradations):
+                        if (index_machine == machine):
+                            for index_component, deg in enumerate(degradation):
+                                jobs_repr += (f"(C{index_component + 1},{deg[job_index][operation_index]}) ")
+                        
+                    jobs_repr += "\n"
+
+                
         return (f"Data(nbJobs={self.nbJobs}, nbMachines={self.nbMachines}) \n"
-                f"{machines_repr}"
-                f"{jobs_repr}"
+                f"{machines_repr}\n"
+                f"{jobs_repr} \n"
+                f"degradation {self.degradations} \n"
                 )
     
     def __str__(self):
@@ -110,11 +127,15 @@ from CommonFunctions import parse_degradations_file, parse_operations_file
 
 if __name__ == "__main__": 
     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k1/k1.txt")
-    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations = parse_degradations_file(f"ComplexSystems/TESTS/k1/instance01/instance.txt")
+    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k1/instance01/instance.txt")
 
-    data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, nbOperationsParJob, dureeOperations, processingTimes)
+    data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     print("String representation (__str__):")
     print(data)
     
     print("\nDetailed representation (__repr__):")
     print(repr(data))
+
+    print(f"degration 2: {degradations2}")
+    print(f"len degradation2 {len(degradations2)}")
+    
