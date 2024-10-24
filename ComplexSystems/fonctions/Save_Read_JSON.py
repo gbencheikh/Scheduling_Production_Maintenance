@@ -3,7 +3,7 @@ from data import data
 import matplotlib.pyplot as plt
 import json
 
-def save_JSON(data, solution, dureeOperations, couleurMachines, fileName):
+def save_JSON(data, solution, fileName):
     taches = []
     
     t_ij, c_ij, Cmax, deg, y, i_s, Qj, nbMaintenance = completionTime(solution)
