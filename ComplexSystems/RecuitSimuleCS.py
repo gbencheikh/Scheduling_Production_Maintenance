@@ -9,7 +9,7 @@ import time
 import copy
 
 class RSCS:
-    def __init__(self, initial_solution, initial_temperature, cooling_rate, stopping_temperature, size_iteration, max_iterations):
+    def __init__(self, data, initial_solution, initial_temperature, cooling_rate, stopping_temperature, size_iteration, max_iterations):
         """ 
             initial_solution: the initial solution.
             initial_temperature: the initial temperature.
@@ -25,6 +25,7 @@ class RSCS:
         self.size_iteration = size_iteration
         self.max_iterations = max_iterations 
         self.execution_time = 0
+        self.data = data
     
     def inserer_maintenance(self,y):
         # Générer des indices aléatoires
