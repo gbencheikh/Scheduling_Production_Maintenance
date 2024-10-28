@@ -209,5 +209,5 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         model.optimize()
 
 if __name__ == "__main__": 
-    model = FJSP_Maintenance_Quality_complex_systems__model(instancename='sfjs07', num_instance='instance02')
+    model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance01')
     model.solve()
