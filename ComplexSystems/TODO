@@ -6,3 +6,7 @@ plan d'expériences (BB)
 - read json result file (BB)
 - update diargram de gantt (GB)
 
+- alpha_kl et Qjmin dans class 'Data' 
+- lecture des fichiers de données dans le constructeur de 'Data' 
+
+Plan d'expérience 
