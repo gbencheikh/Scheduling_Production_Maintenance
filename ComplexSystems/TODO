@@ -3,8 +3,8 @@ plan d'expériences (BB)
 
 + class data (GB)
 + class model (GB)
-- read json result file (BB)
-- update diargram de gantt (GB)
++ read json result file (BB)
++ update diargram de gantt (GB)
 
 - alpha_kl et Qjmin dans class 'Data' 
 - lecture des fichiers de données dans le constructeur de 'Data' 

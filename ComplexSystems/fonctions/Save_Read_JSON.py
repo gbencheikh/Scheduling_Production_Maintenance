@@ -1,5 +1,5 @@
 from CommonFunctions import completionTime
-from data import data 
+from data import Data 
 import matplotlib.pyplot as plt
 import json
 
@@ -56,3 +56,30 @@ def save_JSON(data, solution, fileName):
     # Écrire les données dans un fichier JSON
     with open(fileName, 'w') as json_file:
         json.dump(data, json_file, indent=4)
+
+
+def lire_fichier_json(chemin_fichier):
+    with open(chemin_fichier, 'r') as fichier:
+        data = json.load(fichier)
+
+    # Afficher le contenu de chaque clé principale
+    print("Cmax_x:", data["Cmax_x"])
+    
+    for item in data["fig"]:
+        if (item['rsc'] != "Maintenances"):
+            print(f"  Task: {item['task']}, Start: {item['start']}, End: {item['end']}, Resource: {item['rsc']}, Label: {item['label']}, Info: {item['info']}")
+    
+    print("\nQuality:")
+    for quality_list in data["quality"]:
+        print(" ", quality_list)
+    
+    print("\nDegradations:")
+    for degradation_list in data["degradations"]:
+        for sublist in degradation_list:
+            print(" ", sublist)
+
+    return data
+    
+
+if __name__ == "__main__": 
+    lire_fichier_json(f"ComplexSystems/TESTS/k1/instance01/meta_heuristic_result.json")

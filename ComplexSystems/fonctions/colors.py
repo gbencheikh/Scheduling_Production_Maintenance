@@ -1,4 +1,4 @@
-couleurMachines = {
+colors = {
     'J1': '#ff9999',   # Light Red
     'J2': '#99ff99',   # Light Green
     'J3': '#9999ff',   # Light Blue
@@ -14,5 +14,5 @@ couleurMachines = {
     'J13': '#b3b3b3',  # Grey
     'J14': '#1f78b4',  # Bright Blue
     'J15': '#33a02c',  # Bright Green
-    'Maintenances': '#2F4F4F'  # Dark Slate Grey
+    'Maintenances': 'black'  # Dark Slate Grey
 }
