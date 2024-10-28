@@ -1,7 +1,8 @@
 class recuit simulé (BB)
 plan d'expériences (BB)
-read json result file (BB)
 
-class data (GB)
-class model (GB)
-update diargram de gantt (GB)
++ class data (GB)
++ class model (GB)
+- read json result file (BB)
+- update diargram de gantt (GB)
+
