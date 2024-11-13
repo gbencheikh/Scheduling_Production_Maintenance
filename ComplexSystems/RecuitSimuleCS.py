@@ -45,21 +45,19 @@ class RSCS:
             [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
             [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
         ]
-        alpha_kl = [[.01 for l in range(self.data.nbComposants[k])] for k in range(self.data.nbMachines)]
-        Qjmin = [0.8 for j in range(self.data.nbJobs)]
-
         opt_solution = copy.deepcopy(solution)
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,alpha_kl,Qjmin)[2]
+        opt_Cmax = ComFuns.completionTime(self.data,opt_solution)[2]
         T = tempInit
         iteration = 0
         iteration_max = iters
         cmax_tab = []
-        
+        T_tab=[]
+        #tempFin=0
         ## itérations
         while iteration < iteration_max and T > tempFin:
             nouvelle_solution = self.etat_voisin(solution, self.data.nbMachines)
-            cost1 = ComFuns.completionTime(self.data,nouvelle_solution,alpha_kl,Qjmin)[7]
-            cost2 = ComFuns.completionTime(self.data,solution,alpha_kl,Qjmin)[7]
+            cost1 = ComFuns.completionTime(self.data,nouvelle_solution)[7]
+            cost2 = ComFuns.completionTime(self.data,solution)[7]
             DE =  cost1 - cost2
             if DE < 0:
                 solution = copy.deepcopy(nouvelle_solution)
@@ -70,7 +68,13 @@ class RSCS:
                 solution = copy.deepcopy(nouvelle_solution)
             T *= coolRate
             iteration += 1
-            Cmax = ComFuns.completionTime(self.data,solution,alpha_kl,Qjmin)[2]
+            Cmax = ComFuns.completionTime(self.data,solution)[2]
             cmax_tab.append(Cmax)
+            T_tab.append(T)
+        print(cmax_tab[-1])
+        print(T_tab[-1])
+        print(iteration)
+        plt.plot(cmax_tab)
+        plt.show()
         
         return opt_solution, opt_Cmax, time.perf_counter()-t0

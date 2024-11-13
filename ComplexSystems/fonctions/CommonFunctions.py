@@ -100,7 +100,7 @@ def parse_operations_file(filename, inf=9999):
         j += 1
     return nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes
 
-def completionTime(data, solution, alpha_kl, Qjmin):
+def completionTime(data, solution):
     maxComposants = max(data.nbComposants)
     iter = [0 for j in range(data.nbJobs)]
     i_s = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
@@ -132,7 +132,7 @@ def completionTime(data, solution, alpha_kl, Qjmin):
                         D_kl[k][l].append(0)
                     break
                 ind_ -= 1
-            temp_var += D_kl[k][l][-1]*alpha_kl[k][l]
+            temp_var += D_kl[k][l][-1]*data.alpha_kl[k][l]
             D_kl[k][l].append( D_kl[k][l][-1] + data.degradations[k][l][j][i])
             y[l][j][i] = True if(D_kl[k][l][-1] > data.seuils_degradation[k][l]) else y[l][j][i]
         dispo_machines[k] = c_ij[j][i] + max(y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k]))
@@ -147,7 +147,7 @@ def completionTime(data, solution, alpha_kl, Qjmin):
                     nbMaintenance += 1
     penality = 0
     for j in range(data.nbJobs):
-        if Qj[j][-1] > Qjmin[j]:
+        if Qj[j][-1] > data.Qjmin[j]:
             penality += 1
     cout = 0.8*Cmax + 0.1*nbMaintenance + 0.1*penality
     return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout

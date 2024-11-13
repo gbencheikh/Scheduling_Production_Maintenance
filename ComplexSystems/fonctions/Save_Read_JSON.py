@@ -1,12 +1,12 @@
-from CommonFunctions import completionTime
-from data import Data 
+from fonctions.CommonFunctions import *
+from fonctions.data import Data 
 import matplotlib.pyplot as plt
 import json
 
 def save_JSON(data, solution, fileName):
     taches = []
     
-    t_ij, c_ij, Cmax, deg, y, i_s, Qj, nbMaintenance = completionTime(solution)
+    t_ij, c_ij, Cmax, deg, y, i_s, Qj, nbMaintenance = completionTime(data,solution)
     
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
@@ -19,7 +19,7 @@ def save_JSON(data, solution, fileName):
                      start=start,
                      end=end,
                      rsc=f"J{j+1}",
-                     label=f"O{j+1}:{i+1}",
+                     label="$O_{%d,%d}$" % (j+1,i+1),
                      info=f"J{j+1}"))
     ############
     for ind in range(sum(data.nbOperationsParJob)):

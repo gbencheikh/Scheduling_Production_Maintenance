@@ -1,5 +1,5 @@
 from fonctions.CommonFunctions import parse_degradations_file, parse_operations_file
-from fonctions.colors import couleurMachines
+#from fonctions.colors import couleurMachines
 from fonctions.data import Data
 
 # from my_module import create_gantt_chart
@@ -207,6 +207,7 @@ class FJSP_Maintenance_Quality_complex_systems__model:
   
         model.objective = minimize(0.9*Cmax + 0.1*Mmax)
         model.optimize()
+        
 
 if __name__ == "__main__": 
     model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance01')

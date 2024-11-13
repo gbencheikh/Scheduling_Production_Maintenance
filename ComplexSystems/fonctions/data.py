@@ -59,6 +59,8 @@ class Data:
         self.nbOperationsParJob = nbOperationsParJob
         self.dureeOperations = dureeOperations
         self.processingTimes = processingTimes
+        self.alpha_kl = [[0.0 for l in range(self.nbComposants[k])] for k in range(self.nbMachines)]
+        self.Qjmin = [0.8 for j in range(self.nbJobs)]
 
     def __repr__(self):
         """
