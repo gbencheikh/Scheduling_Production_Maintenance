@@ -38,7 +38,7 @@ class RSCS:
         voisin[2]=self.inserer_maintenance(voisin[2])
         return voisin
 
-    def Run_RSCS(self,tempInit,tempFin,coolRate,iters):
+    def Run_RSCS(self,tempInit,tempFin,coolRate,iters, objweights,plotshow):
         t0 = time.perf_counter()
         solution = [
             [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
@@ -46,7 +46,7 @@ class RSCS:
             [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
         ]
         opt_solution = copy.deepcopy(solution)
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution)[2]
+        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
         T = tempInit
         iteration = 0
         iteration_max = iters
@@ -56,8 +56,8 @@ class RSCS:
         ## itérations
         while iteration < iteration_max and T > tempFin:
             nouvelle_solution = self.etat_voisin(solution, self.data.nbMachines)
-            cost1 = ComFuns.completionTime(self.data,nouvelle_solution)[7]
-            cost2 = ComFuns.completionTime(self.data,solution)[7]
+            cost1 = ComFuns.completionTime(self.data,nouvelle_solution,objweights)[7]
+            cost2 = ComFuns.completionTime(self.data,solution,objweights)[7]
             DE =  cost1 - cost2
             if DE < 0:
                 solution = copy.deepcopy(nouvelle_solution)
@@ -68,13 +68,13 @@ class RSCS:
                 solution = copy.deepcopy(nouvelle_solution)
             T *= coolRate
             iteration += 1
-            Cmax = ComFuns.completionTime(self.data,solution)[2]
+            Cmax = ComFuns.completionTime(self.data,solution,objweights)[2]
             cmax_tab.append(Cmax)
             T_tab.append(T)
-        print(cmax_tab[-1])
-        print(T_tab[-1])
-        print(iteration)
-        plt.plot(cmax_tab)
-        plt.show()
-        
-        return opt_solution, opt_Cmax, time.perf_counter()-t0
+        print(cmax_tab[-1], ",", T_tab[-1], "," , iteration)
+        if plotshow: 
+            plt.plot(cmax_tab)
+            plt.show()
+        nbrmaintenances=ComFuns.completionTime(self.data,opt_solution,objweights)[8]
+        qualpenality=ComFuns.completionTime(self.data,opt_solution,objweights)[9]
+        return opt_solution, opt_Cmax, time.perf_counter()-t0,nbrmaintenances,qualpenality

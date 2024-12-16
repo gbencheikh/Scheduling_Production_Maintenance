@@ -100,7 +100,7 @@ def parse_operations_file(filename, inf=9999):
         j += 1
     return nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes
 
-def completionTime(data, solution):
+def completionTime(data, solution,weights):
     maxComposants = max(data.nbComposants)
     iter = [0 for j in range(data.nbJobs)]
     i_s = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
@@ -110,7 +110,6 @@ def completionTime(data, solution):
     Qj = [[1.0]  for j in range(data.nbJobs)]
     y = copy.deepcopy(solution[2])
     dispo_machines = [0 for _ in range(data.nbMachines)]
-    
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
@@ -133,10 +132,11 @@ def completionTime(data, solution):
                     break
                 ind_ -= 1
             temp_var += D_kl[k][l][-1]*data.alpha_kl[k][l]
-            D_kl[k][l].append( D_kl[k][l][-1] + data.degradations[k][l][j][i])
-            y[l][j][i] = True if(D_kl[k][l][-1] > data.seuils_degradation[k][l]) else y[l][j][i]
+            D_kl[k][l].append(D_kl[k][l][-1] + data.degradations[k][l][j][i])
+            y[l][j][i] = (D_kl[k][l][-1] > data.seuils_degradation[k][l]) 
         dispo_machines[k] = c_ij[j][i] + max(y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k]))
         Qj[j].append(Qj[j][-1]-temp_var)
+
         iter[j] += 1
     Cmax = max(c_ij[j][data.nbOperationsParJob[j]-1] for j in range(data.nbJobs))
     nbMaintenance=0
@@ -147,7 +147,7 @@ def completionTime(data, solution):
                     nbMaintenance += 1
     penality = 0
     for j in range(data.nbJobs):
-        if Qj[j][-1] > data.Qjmin[j]:
+        if Qj[j][-1] < data.Qjmin[j]:
             penality += 1
-    cout = 0.8*Cmax + 0.1*nbMaintenance + 0.1*penality
-    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout
+    cout = weights[0]*Cmax + weights[1]*nbMaintenance + weights[2]*penality
+    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout,nbMaintenance,penality

@@ -5,14 +5,22 @@
             "task": "Machine 1",
             "start": 0,
             "end": 2,
-            "rsc": "J2",
-            "label": "$O_{2,1}$",
-            "info": "J2"
+            "rsc": "J1",
+            "label": "$O_{1,1}$",
+            "info": "J1"
         },
         {
             "task": "Machine 1",
-            "start": 10,
-            "end": 12,
+            "start": 7,
+            "end": 8,
+            "rsc": "J4",
+            "label": "$O_{4,1}$",
+            "info": "J4"
+        },
+        {
+            "task": "Machine 1",
+            "start": 13,
+            "end": 15,
             "rsc": "J3",
             "label": "$O_{3,3}$",
             "info": "J3"
@@ -34,95 +42,47 @@
             "info": "Composant : 2 (dur\u00e9e=5)"
         },
         {
+            "task": "Machine 1",
+            "start": 8,
+            "end": 12,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=4)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 8,
+            "end": 13,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (dur\u00e9e=5)"
+        },
+        {
             "task": "Machine 2",
-            "start": 2,
-            "end": 8,
+            "start": 4,
+            "end": 10,
             "rsc": "J2",
             "label": "$O_{2,2}$",
             "info": "J2"
         },
         {
             "task": "Machine 2",
-            "start": 14,
-            "end": 15,
+            "start": 15,
+            "end": 16,
             "rsc": "J4",
             "label": "$O_{4,2}$",
             "info": "J4"
         },
         {
             "task": "Machine 2",
-            "start": 8,
-            "end": 13,
+            "start": 10,
+            "end": 15,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 1 (dur\u00e9e=5)"
         },
         {
             "task": "Machine 2",
-            "start": 8,
-            "end": 10,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 2 (dur\u00e9e=2)"
-        },
-        {
-            "task": "Machine 3",
-            "start": 0,
-            "end": 6,
-            "rsc": "J3",
-            "label": "$O_{3,1}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 3",
-            "start": 8,
-            "end": 10,
-            "rsc": "J3",
-            "label": "$O_{3,2}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 3",
-            "start": 12,
-            "end": 14,
-            "rsc": "J4",
-            "label": "$O_{4,1}$",
-            "info": "J4"
-        },
-        {
-            "task": "Machine 3",
-            "start": 6,
-            "end": 7,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 1 (dur\u00e9e=1)"
-        },
-        {
-            "task": "Machine 3",
-            "start": 6,
-            "end": 8,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 2 (dur\u00e9e=2)"
-        },
-        {
-            "task": "Machine 3",
-            "start": 6,
-            "end": 7,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 3 (dur\u00e9e=1)"
-        },
-        {
-            "task": "Machine 3",
-            "start": 10,
-            "end": 11,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 1 (dur\u00e9e=1)"
-        },
-        {
-            "task": "Machine 3",
             "start": 10,
             "end": 12,
             "rsc": "Maintenances",
@@ -131,8 +91,72 @@
         },
         {
             "task": "Machine 3",
-            "start": 10,
+            "start": 0,
+            "end": 4,
+            "rsc": "J2",
+            "label": "$O_{2,1}$",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 7,
+            "end": 9,
+            "rsc": "J3",
+            "label": "$O_{3,2}$",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 3",
+            "start": 11,
+            "end": 16,
+            "rsc": "J1",
+            "label": "$O_{1,3}$",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 3",
+            "start": 4,
+            "end": 5,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 4,
+            "end": 6,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (dur\u00e9e=2)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 4,
+            "end": 5,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 3 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 9,
+            "end": 10,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (dur\u00e9e=1)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 9,
             "end": 11,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (dur\u00e9e=2)"
+        },
+        {
+            "task": "Machine 3",
+            "start": 9,
+            "end": 10,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 3 (dur\u00e9e=1)"
@@ -140,18 +164,10 @@
         {
             "task": "Machine 4",
             "start": 0,
-            "end": 1,
-            "rsc": "J1",
-            "label": "$O_{1,1}$",
-            "info": "J1"
-        },
-        {
-            "task": "Machine 4",
-            "start": 6,
-            "end": 10,
-            "rsc": "J1",
-            "label": "$O_{1,3}$",
-            "info": "J1"
+            "end": 7,
+            "rsc": "J3",
+            "label": "$O_{3,1}$",
+            "info": "J3"
         },
         {
             "task": "Machine 4",
@@ -163,96 +179,72 @@
         },
         {
             "task": "Machine 4",
-            "start": 1,
-            "end": 4,
+            "start": 7,
+            "end": 10,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 1 (dur\u00e9e=3)"
         },
         {
             "task": "Machine 4",
-            "start": 1,
-            "end": 6,
+            "start": 7,
+            "end": 12,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 2 (dur\u00e9e=5)"
         },
         {
             "task": "Machine 4",
-            "start": 1,
-            "end": 6,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 3 (dur\u00e9e=5)"
-        },
-        {
-            "task": "Machine 4",
-            "start": 10,
-            "end": 13,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 1 (dur\u00e9e=3)"
-        },
-        {
-            "task": "Machine 4",
-            "start": 10,
-            "end": 15,
-            "rsc": "Maintenances",
-            "label": "M",
-            "info": "Composant : 2 (dur\u00e9e=5)"
-        },
-        {
-            "task": "Machine 4",
-            "start": 10,
-            "end": 15,
+            "start": 7,
+            "end": 12,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 3 (dur\u00e9e=5)"
         },
         {
             "task": "Machine 5",
-            "start": 1,
-            "end": 6,
+            "start": 2,
+            "end": 7,
             "rsc": "J1",
             "label": "$O_{1,2}$",
             "info": "J1"
         },
         {
             "task": "Machine 5",
-            "start": 9,
-            "end": 14,
+            "start": 10,
+            "end": 15,
             "rsc": "J2",
             "label": "$O_{2,3}$",
             "info": "J2"
         },
         {
             "task": "Machine 5",
-            "start": 6,
-            "end": 8,
+            "start": 7,
+            "end": 9,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 1 (dur\u00e9e=2)"
         },
         {
             "task": "Machine 5",
-            "start": 6,
-            "end": 7,
+            "start": 7,
+            "end": 8,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 2 (dur\u00e9e=1)"
         },
         {
             "task": "Machine 5",
-            "start": 6,
-            "end": 8,
+            "start": 7,
+            "end": 9,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 3 (dur\u00e9e=2)"
         },
         {
             "task": "Machine 5",
-            "start": 6,
-            "end": 9,
+            "start": 7,
+            "end": 10,
             "rsc": "Maintenances",
             "label": "M",
             "info": "Composant : 4 (dur\u00e9e=3)"
@@ -288,11 +280,15 @@
         [
             [
                 0,
-                9,
+                3,
+                0,
+                7,
                 0,
                 10
             ],
             [
+                0,
+                8,
                 0,
                 8,
                 0,
@@ -316,11 +312,11 @@
         [
             [
                 0,
-                7,
+                8,
                 0,
                 1,
                 0,
-                9
+                10
             ],
             [
                 0,
@@ -328,39 +324,33 @@
                 0,
                 10,
                 0,
-                6
+                8
             ],
             [
                 0,
-                4,
+                8,
                 0,
                 7,
                 0,
-                10
+                7
             ]
         ],
         [
             [
                 0,
-                1,
-                0,
-                1,
+                3,
                 0,
                 2
             ],
             [
                 0,
-                3,
-                0,
-                3,
+                2,
                 0,
                 8
             ],
             [
                 0,
-                6,
-                0,
-                3,
+                10,
                 0,
                 9
             ]
