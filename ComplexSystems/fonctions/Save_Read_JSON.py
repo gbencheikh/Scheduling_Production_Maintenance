@@ -61,7 +61,8 @@ def save_JSON(data, solution, fileName,weights):
 def lire_fichier_json(chemin_fichier):
     with open(chemin_fichier, 'r') as fichier:
         data = json.load(fichier)
-
+    return data
+def afficher_fichier_json(data):
     # Afficher le contenu de chaque clé principale
     print("Cmax_x:", data["Cmax_x"])
     
@@ -78,8 +79,8 @@ def lire_fichier_json(chemin_fichier):
         for sublist in degradation_list:
             print(" ", sublist)
 
-    return data
     
+
 
 if __name__ == "__main__": 
     lire_fichier_json(f"ComplexSystems/TESTS/k1/instance01/meta_heuristic_result.json")

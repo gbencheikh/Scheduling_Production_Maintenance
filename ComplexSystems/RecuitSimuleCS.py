@@ -79,8 +79,8 @@ class RSCS:
             Cmax = ComFuns.completionTime(self.data,solution,objweights)[2]
             cmax_tab.append(Cmax)
             T_tab.append(T)
-        print(cmax_tab[-1], ",", T_tab[-1], "," , iteration)
         if plotshow: 
+            print(cmax_tab[-1], ",", T_tab[-1], "," , iteration)
             plt.plot(cmax_tab)
             plt.show()
         opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
