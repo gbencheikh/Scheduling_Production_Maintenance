@@ -3,10 +3,10 @@ from fonctions.data import Data
 import matplotlib.pyplot as plt
 import json
 
-def save_JSON(data, solution, fileName):
+def save_JSON(data, solution, fileName,weights):
     taches = []
     
-    t_ij, c_ij, Cmax, deg, y, i_s, Qj, nbMaintenance = completionTime(data,solution)
+    t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality = completionTime(data,solution,weights)
     
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]

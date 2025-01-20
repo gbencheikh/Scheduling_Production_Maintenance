@@ -46,6 +46,7 @@ class RSCS:
             [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
         ]
         opt_solution = copy.deepcopy(solution)
+
         opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
         T = tempInit
         iteration = 0
@@ -61,11 +62,18 @@ class RSCS:
             DE =  cost1 - cost2
             if DE < 0:
                 solution = copy.deepcopy(nouvelle_solution)
-                if (cost1 <= opt_Cmax):
-                    opt_solution = copy.deepcopy(nouvelle_solution)
-                    opt_Cmax = cost1
+                #if (cost1 <= opt_Cmax):
+                #    opt_solution = copy.deepcopy(nouvelle_solution)
+                #    opt_Cmax = cost1
+                opt_solution = copy.deepcopy(nouvelle_solution)
             elif np.exp(-DE/T)>np.random.rand():
                 solution = copy.deepcopy(nouvelle_solution)
+            elif np.exp(-DE/T)>np.random.rand():
+                solution = copy.deepcopy(nouvelle_solution)
+            #elif np.exp(-DE/T)>np.random.rand():
+            #    solution = copy.deepcopy(nouvelle_solution)
+            #elif np.exp(-DE/T)>np.random.rand():
+            #    solution = copy.deepcopy(nouvelle_solution)
             T *= coolRate
             iteration += 1
             Cmax = ComFuns.completionTime(self.data,solution,objweights)[2]
@@ -75,6 +83,8 @@ class RSCS:
         if plotshow: 
             plt.plot(cmax_tab)
             plt.show()
+        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
         nbrmaintenances=ComFuns.completionTime(self.data,opt_solution,objweights)[8]
-        qualpenality=ComFuns.completionTime(self.data,opt_solution,objweights)[9]
-        return opt_solution, opt_Cmax, time.perf_counter()-t0,nbrmaintenances,qualpenality
+        avgoutqual=ComFuns.completionTime(self.data,opt_solution,objweights)[9]
+        qualpenality=ComFuns.completionTime(self.data,opt_solution,objweights)[10]
+        return opt_solution, opt_Cmax, time.perf_counter()-t0,nbrmaintenances,avgoutqual,qualpenality

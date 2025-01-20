@@ -143,11 +143,12 @@ def completionTime(data, solution,weights):
     for l in range(maxComposants):
         for j in range(data.nbJobs):
             for i in range(data.nbOperationsParJob[j]):
-                if y[l][j][i]:
+                if y[l][j][i]>0:
                     nbMaintenance += 1
     penality = 0
     for j in range(data.nbJobs):
         if Qj[j][-1] < data.Qjmin[j]:
             penality += 1
+    AOQ=sum([Qj[j][-1] for j in range(data.nbJobs)])/data.nbJobs
     cout = weights[0]*Cmax + weights[1]*nbMaintenance + weights[2]*penality
-    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout,nbMaintenance,penality
+    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout,nbMaintenance,AOQ,penality

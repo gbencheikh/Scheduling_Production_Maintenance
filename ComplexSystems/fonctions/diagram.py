@@ -25,7 +25,7 @@ colors = {
     'Maintenances': 'black'  # Dark Slate Grey
 }
         
-def plotGantt(result, pngfname, showgantt):
+def plotGantt(result, pngfname, plottitle, showgantt):
     """ Display a Gantt chart for a given scheduling solution.
 
     This function takes a JSON-like object containing scheduling information and generates a Gantt chart 
@@ -117,7 +117,7 @@ def plotGantt(result, pngfname, showgantt):
     gnt.set_yticklabels(machines, fontsize=20)
     gnt.set_xlabel("Time")
     gnt.set_title("Gantt Chart")
-    plt.title("Joint Scheduling",fontsize=25)
+    plt.title(plottitle,fontsize=25)
     
     # Créer la légende uniquement pour les ressources existantes
     jobs = sorted(set(job for job in jobs))
@@ -126,7 +126,7 @@ def plotGantt(result, pngfname, showgantt):
 
 
     plt.tight_layout()
-    fig.savefig(f"{pngfname}-GanttDiagram.png", bbox_inches='tight')
+    fig.savefig(f"{pngfname}-GanttDiagram{plottitle}.png", bbox_inches='tight')
     if showgantt == True:
         plt.show()
 
@@ -141,4 +141,4 @@ if __name__ == "__main__":
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     
     result = lire_fichier_json(f"ComplexSystems/TESTS/k1/instance01/meta_heuristic_result.json")
-    plotGantt(result, "ComplexSystems/test_figure", showgantt=True)
+    plotGantt(result, "ComplexSystems/test_figure","k1-instance01", showgantt=True)
