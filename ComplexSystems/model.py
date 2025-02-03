@@ -23,8 +23,8 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         self.n_max = n_max
         self.num_instance = num_instance
         
-        nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/{instancename}/{instancename}.txt")
-        _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/{instancename}/{num_instance}/instance.txt")
+        nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/{instancename}/{instancename}.txt")
+        _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/{instancename}/{num_instance}/instance.txt")
         self.data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
         
         self.alpha_kl = [[.01 for l in range(nbComposants[k])] for k in range(self.data.nbMachines)]
@@ -55,7 +55,7 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         prod_x_D = [[[[[model.add_var() for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(self.data.nbComposants[k])] for k in range(self.data.nbMachines)] for n in range(self.n_max)]
         Qj = [model.add_var()  for j in range(self.data.nbJobs)]
         prod_x_y = [[[[[model.add_var(var_type=BINARY) for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(self.data.nbComposants[k])] for k in range(self.data.nbMachines)] for n in range(self.n_max)]
-
+        penal = [model.add_var(var_type=BINARY)  for j in range(self.data.nbJobs)]
         # Contraintes : 
         # Calcul de la dégradation
         for n in range(self.n_max):
@@ -192,8 +192,12 @@ class FJSP_Maintenance_Quality_complex_systems__model:
                 model += v_kn[n][k] <= 1
 
         ## CONTRAINTES DE QUALITE
+        #for j in range(self.data.nbJobs):
+        #    model +=  xsum((1-Qj[j]) for j in range(self.data.nbJobs))/self.data.nbJobs <= self.AQL
+
         for j in range(self.data.nbJobs):
-            model +=  xsum((1-Qj[j]) for j in range(self.data.nbJobs))/self.data.nbJobs <= self.AQL
+            model += penal[j] >= Qjmin[j] - Qj[j] 
+
 
         # Fonction objectif 
         for j in range(self.data.nbJobs):
@@ -205,10 +209,11 @@ class FJSP_Maintenance_Quality_complex_systems__model:
                             for k in range(self.data.nbMachines) 
                             for l in range(self.data.nbComposants[k]))
   
-        model.objective = minimize(0.9*Cmax + 0.1*Mmax)
+        model.objective = minimize(0.7*Cmax + 0.2*Mmax + 0.1*xsum(penal[j] for j in range(self.data.nbJobs)))
         model.optimize()
         
 
 if __name__ == "__main__": 
-    model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance01')
+    model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance1')
     model.solve()
+    

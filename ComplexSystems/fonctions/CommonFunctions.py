@@ -132,7 +132,7 @@ def completionTime(data, solution,weights):
                     break
                 ind_ -= 1
             temp_var += D_kl[k][l][-1]*data.alpha_kl[k][l]
-            D_kl[k][l].append(D_kl[k][l][-1] + data.degradations[k][l][j][i])
+            D_kl[k][l].append(D_kl[k][l][-1] + data.dureeOperations[k][j][i]*data.degradations[k][l][j][i])
             y[l][j][i] = (D_kl[k][l][-1] > data.seuils_degradation[k][l]) 
         dispo_machines[k] = c_ij[j][i] + max(y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k]))
         Qj[j].append(Qj[j][-1]-temp_var)
