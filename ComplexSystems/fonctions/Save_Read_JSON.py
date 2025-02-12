@@ -2,6 +2,18 @@ from fonctions.CommonFunctions import *
 from fonctions.data import Data 
 import matplotlib.pyplot as plt
 import json
+import numpy as np
+
+def convert_ndarray_to_list(obj):
+    if isinstance(obj, dict):
+        return {k: convert_ndarray_to_list(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_ndarray_to_list(x) for x in obj]
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
+
 
 def save_JSON(data, solution, fileName,weights):
     taches = []
@@ -53,7 +65,11 @@ def save_JSON(data, solution, fileName,weights):
         "degradations": deg
     }
     
+    #dumped = json.dumps(data, cls=NumpyEncoder)
+    #with open(fileName, 'w') as f:
+    #    json.dump(dumped, f)
     # Écrire les données dans un fichier JSON
+    data = convert_ndarray_to_list(data)
     with open(fileName, 'w') as json_file:
         json.dump(data, json_file, indent=4)
 
