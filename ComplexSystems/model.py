@@ -7,6 +7,7 @@ from mip import Model, xsum, maximize, minimize, BINARY
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import time 
 
 class FJSP_Maintenance_Quality_complex_systems__model:
     """
@@ -17,14 +18,12 @@ class FJSP_Maintenance_Quality_complex_systems__model:
     data: object 
     represent scheduling and maintenance data for a production system
     """
-    def __init__(self, instancename, num_instance, n_max=3): 
+    def __init__(self, n1, n2, n_max=3): 
         self.inf= 999999
-        self.instancename = instancename
         self.n_max = n_max
-        self.num_instance = num_instance
         
-        nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/{instancename}/{instancename}.txt")
-        _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/{instancename}/{num_instance}/instance.txt")
+        nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/k{n1}/k{n1}.txt")
+        _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
         self.data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
         
         self.alpha_kl = [[.01 for l in range(nbComposants[k])] for k in range(self.data.nbMachines)]
@@ -210,10 +209,25 @@ class FJSP_Maintenance_Quality_complex_systems__model:
                             for l in range(self.data.nbComposants[k]))
   
         model.objective = minimize(0.7*Cmax + 0.2*Mmax + 0.1*xsum(penal[j] for j in range(self.data.nbJobs)))
+        t0=time.perf_counter()
         model.optimize()
-        
+        cputime1=time.perf_counter()-t0
+        optCmax1=Cmax.x
+        qualpenal1=sum(penal[j].x for j in range(self.data.nbJobs))
+        nbrmaint1=Mmax.x
+        optsolution1 = [
+            [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
+            [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
+            [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
+        ]
+
+        return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1
 
 if __name__ == "__main__": 
     model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance1')
     model.solve()
-    
+
+def Run_solver(n1,n2):
+    model = FJSP_Maintenance_Quality_complex_systems__model(instancename=n1, num_instance=n2)
+    optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=model.solve()
+    return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1

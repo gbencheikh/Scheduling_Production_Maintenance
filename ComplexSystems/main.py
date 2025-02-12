@@ -50,7 +50,7 @@ y=True
 if y: 
     kmax=len(QJMINs)+len(ALPHAKLs)*len(BETAKLs)*len(LAMBDAKLs)*len(QJMINs)
     k=0
-    ResTest.append(["alphakl","Lambdakl","betakl","AQL","weights[0]","weights[1]","weights[2]","optCmax", "nbrmaint", "avgoq","qualpenal","cputime"])
+    ResTest.append(["alphakl","Lambdakl","betakl","AQL","weights[0]","weights[1]","weights[2]","RSCmax", "RSnbrmaint", "RSavgoq","RSqualpenal","RScputime","MILPoptCmax", "MILPnbrmaint", "MILPavgoq","MILPqualpenal","MILPcputime"])
     """for qjmin in QJMINs:
         k+=1
         optsolution, optCmax, cputime,nbrmaint,avgoq,qualpenal=rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,False)
@@ -67,16 +67,24 @@ if y:
                 for lambdakl in LAMBDAKLs: # degradation threshold triggering PdM
                     k+=1
                     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-                    data.degradations=[[[[np.round(max(0,np.random.normal(betakl, std_betakl, 1)),3)  for ido in range(data.nbOperationsParJob[j])]  for j in range(data.nbJobs) ] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
+                    x=float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
+                    print(x)
+                    data.degradations=[[[[x  for ido in range(data.nbOperationsParJob[j])]  for j in range(data.nbJobs) ] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
                     data.Qjmin = [qjmin for j in range(data.nbJobs)] 
                     #print(data.seuils_degradation)  
                     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
                     #print(data.seuils_degradation)
                     optsolution, optCmax, cputime,nbrmaint,avgoq,qualpenal=rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,False)
-                    save_JSON(data,optsolution,f"Results/testk{n1}inst{n2}_{k}.json",weights)
-                    result = lire_fichier_json(f"Results/testk{n1}inst{n2}_{k}.json")
-                    plotGantt(result, f"Results/Gantts/testk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=False)
-                    ResTest.append([alphakl,lambdakl,betakl,qjmin,weights[0],weights[1],weights[2],optCmax, nbrmaint, avgoq,qualpenal,cputime])
+                    save_JSON(data,optsolution,f"Results/RStestk{n1}inst{n2}_{k}.json",weights)
+                    result = lire_fichier_json(f"Results/RStestk{n1}inst{n2}_{k}.json")
+                    plotGantt(result, f"Results/Gantts/RStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=False)
+                    
+                    optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=Run_solver()
+                    save_JSON(data,optsolution1,f"Results/MILPtestk{n1}inst{n2}_{k}.json",weights)
+                    result = lire_fichier_json(f"Results/MILPtestk{n1}inst{n2}_{k}.json")
+                    plotGantt(result, f"Results/Gantts/MILPtestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=False)
+                    
+                    ResTest.append([alphakl,lambdakl,betakl,qjmin,weights[0],weights[1],weights[2],optCmax, nbrmaint, avgoq,qualpenal,cputime,optCmax1, nbrmaint1, avgoq1,qualpenal1,cputime1])
                     print( f"{k}/{kmax} - \t alphak={alphakl} \t lambdakl={lambdakl} \t betakl={betakl} \t AQL={qjmin} \t optCmax={optCmax} \t nbrmaint={nbrmaint} \t avgoq={avgoq:.2f} \t qualpenal={qualpenal} \t cputime={cputime:.2f}")
     df=pd.DataFrame(ResTest)
     df.to_excel(f"Results/ResOptWeightsk{n1}inst{n2}.xlsx", index=False, header=False)
