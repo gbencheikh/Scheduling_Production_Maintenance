@@ -213,21 +213,58 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         model.optimize()
         cputime1=time.perf_counter()-t0
         optCmax1=Cmax.x
+        print("optCmax=",optCmax1)
         qualpenal1=sum(penal[j].x for j in range(self.data.nbJobs))
+        print("qualpenal=",qualpenal1)
         nbrmaint1=Mmax.x
+        print("nbrmaint=",nbrmaint1)
+
+        print("operations=",[j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])])
+        print("assign_machine=",[int(sum(k*x_ijkn[n][k][j][i].x for n in range(self.n_max) for k in range(self.data.nbMachines))) for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])])
+        for k in range(self.data.nbMachines):
+            for n in range(self.n_max):
+                print("ykln=",[int(y_kln[n][k][l].x)  for l in range(self.data.nbComposants[k])])
+                for j in range(self.data.nbJobs):
+                    print("xijkn=",[int(x_ijkn[n][k][j][i].x) for i in range(self.data.nbOperationsParJob[j])])
+        print("optsolution1")
+        
+        for n in range(self.n_max):
+            for k in range(self.data.nbMachines):
+                for l in range(self.data.nbComposants[k]):
+                    for j in range(self.data.nbJobs):
+                        for i in range(self.data.nbOperationsParJob[j]):
+                            try:
+                                x_val = x_ijkn[n][k][j][i].x if x_ijkn[n][k][j][i].x is not None else 0
+                                y_val = y_kln[n][k][l].x if y_kln[n][k][l].x is not None else 0
+                                print(f"x[{n}][{k}][{j}][{i}] = {x_val}, y[{n}][{k}][{l}] = {y_val}")
+                            except IndexError as e:
+                                print(f"IndexError at ({n}, {k}, {j}, {i}, {l}): {e}")
+        
         optsolution1 = [
             [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
-            [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
-            [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
+            [sum(k*int(x_ijkn[n][k][j][i].x) for n in range(self.n_max) for k in range(self.data.nbMachines)) for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
+            #[[[max([(int(x_ijkn[n][k][j][i].x)*int(y_kln[n][k][l].x)) for n in range(self.n_max) for k in range(self.data.nbMachines)])  for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
+            [[[0  for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
         ]
 
+        
+        for j in range(self.data.nbJobs):
+            for i in range(self.data.nbOperationsParJob[j]):
+                temp=False
+                for n in range(self.n_max):
+                    for k in range(self.data.nbMachines):
+                        for l in range(self.data.nbComposants[k]):
+                            temp=temp or (x_ijkn[n][k][j][i].x and y_kln[n][k][l].x)
+                    optsolution1[2][l][j][i]=temp
+        avgoq1=sum((1-Qj[j].x) for j in range(self.data.nbJobs))/self.data.nbJobs
         return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1
 
 if __name__ == "__main__": 
-    model = FJSP_Maintenance_Quality_complex_systems__model(instancename='k1', num_instance='instance1')
-    model.solve()
+    model = FJSP_Maintenance_Quality_complex_systems__model(1, 1)
+    optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=model.solve()
+    print(optsolution1)
 
 def Run_solver(n1,n2):
-    model = FJSP_Maintenance_Quality_complex_systems__model(instancename=n1, num_instance=n2)
+    model = FJSP_Maintenance_Quality_complex_systems__model(n1, n2)
     optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=model.solve()
     return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1
