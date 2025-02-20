@@ -109,16 +109,20 @@ def completionTime(data, solution,weights):
     D_kl = [[[0] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     Qj = [[1.0]  for j in range(data.nbJobs)]
     y = copy.deepcopy(solution[2])
+    tij=copy.deepcopy(solution[3])
     dispo_machines = [0 for _ in range(data.nbMachines)]
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
         i_s[ind] = iter[j]
         i = i_s[ind]
-        if i != 0 :
-            t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
-        else :
-            t_ij[j][i] = dispo_machines[k]
+        if tij[j][i]<=-1:
+            if i != 0 :
+                t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
+            else :
+                t_ij[j][i] = dispo_machines[k]
+        else:
+            t_ij[j][i] = solution[3][j][i]
         c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
         temp_var = 0
         for l in range(data.nbComposants[k]):

@@ -41,9 +41,10 @@ class RSCS:
     def Run_RSCS(self,tempInit,tempFin,coolRate,iters, objweights,plotshow):
         t0 = time.perf_counter()
         solution = [
-            [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
-            [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
-            [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
+            [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])], #operation's job index
+            [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])], #operation's assigned machine index 
+            [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))], #components maintained after operation  
+            [-1 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])] #operation's starting times
         ]
         opt_solution = copy.deepcopy(solution)
 
