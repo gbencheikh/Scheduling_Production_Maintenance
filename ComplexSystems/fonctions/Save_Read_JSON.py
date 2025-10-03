@@ -19,29 +19,47 @@ def save_JSON(data, solution, fileName,weights):
     taches = []
     
     t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality = completionTime(data,solution,weights)
-    
+    print(" y:")
+    for i,s in enumerate(y):
+        print(s)
+    print("solution[2]:")
+    for i,s in enumerate(solution[2]):
+        print(s)
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
         i = i_s[ind]
         start = t_ij[j][i]
         end = c_ij[j][i]
-        machine = k
-        taches.append(dict(task=f"Machine {machine+1}",
-                     start=start,
-                     end=end,
+        machine = k+1
+        taches.append(dict(task=f"Machine {machine}",
+                     start=t_ij[j][i],
+                     end=c_ij[j][i],
                      rsc=f"J{j+1}",
                      label="$O_{%d,%d}$" % (j+1,i+1),
                      info=f"J{j+1}"))
     ############
-    for ind in range(sum(data.nbOperationsParJob)):
-        for k in range(data.nbMachines):
-            for l in range(data.nbComposants[k]):
+    
+    for k in range(data.nbMachines):
+        for l in range(data.nbComposants[k]):
+            for ind in range(sum(data.nbOperationsParJob)):
                 i = i_s[ind]
                 j = solution[0][ind]
-                k_ = solution[1][ind]
-                if (y[l][j][i] and k == k_):
-                    for ind_ in range(ind+1, sum(data.nbOperationsParJob)):
+                #k_ = solution[1][ind]
+                if (y[l][j][i] and solution[1][ind]==k):
+                    machine = k+1
+                    composant = l+1
+                    start_time = c_ij[j][i]
+                    finish_time = start_time + data.dureeMaintenances[k][l]
+                    tache = dict(task=f"Machine {machine}", 
+                                 start=start_time, 
+                                 end=finish_time, 
+                                 rsc=f"Maintenances",
+                                 label=f"M", 
+                                 info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
+                    taches.append(tache)
+                    """
+                    for ind_ in range(ind, sum(data.nbOperationsParJob)):
                         if solution[1][ind_] == k_ :
                             machine = k+1
                             composant = l+1
@@ -52,12 +70,11 @@ def save_JSON(data, solution, fileName,weights):
                                          end=finish_time, 
                                          rsc=f"Maintenances",
                                          label=f"M", 
-                                         info=f"Composant : {composant} (durée={data.dureeMaintenances[k][l]})")
+                                         info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
                             taches.append(tache)
                             break
-            
-    taches = sorted(taches, key=lambda x: x['task'])
-
+                    """
+    taches = sorted(taches, key=lambda x: (x["task"], x["start"],x["end"]))
     data = {
         "Cmax_x": Cmax,
         "fig": taches,

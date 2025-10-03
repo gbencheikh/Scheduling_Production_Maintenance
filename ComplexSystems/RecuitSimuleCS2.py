@@ -46,8 +46,7 @@ class RSCS:
             [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])], #operation's job index
             [0 for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])], #operation's assigned machine index 
             [[[False for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))], #components maintained after operation  
-            [[-1 for i in range(self.data.nbOperationsParJob[j]) ]  for j in range(self.data.nbJobs) ], #operation's starting times
-            [[[] for l in range(self.data.nbComposants[k])] for k in  range(self.data.nbMachines)]
+            [[-1 for i in range(self.data.nbOperationsParJob[j]) ]  for j in range(self.data.nbJobs) ] #operation's starting times
         ]
         opt_solution = copy.deepcopy(solution)
 
@@ -106,24 +105,18 @@ if __name__ == "__main__":
     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     #print(repr(data))
-    alphakl=0.2    # quality degradation rate
-    betakl=0.1         # average degradation rate of componenets 
+    alphakl=0.0    # quality degradation rate
+    betakl=0.0         # average degradation rate of componenets 
     std_betakl=0.0     # standard deviation of degradation rate of componenets
     qjmin=0.95          # acceptable quality level triggering quality penality ()
-    lambdakl=0.8       # degradation threshold triggering PdM 
-    dureemaint=1
-    
+    lambdakl=0.95       # degradation threshold triggering PdM 
     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    
-    data.dureeMaintenances = [[dureemaint for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     x=float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
     #print(x)
     data.degradations=[[[[x  for ido in range(data.nbOperationsParJob[j])]  for j in range(data.nbJobs) ] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     data.Qjmin = [qjmin for j in range(data.nbJobs)] 
-     
+    #print(data.seuils_degradation)  
     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
-    print(data.degradations)
-    print(data.seuils_degradation)
     rscs=RSCS(data)
     ## Solve with SA algorithm
     optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,True)
@@ -131,6 +124,6 @@ if __name__ == "__main__":
     k=1
     save_JSON(data,optsolution1,f"Results/RSCStestk{n1}inst{n2}_{k}.json",weights)
     result = lire_fichier_json(f"Results/RSCStestk{n1}inst{n2}_{k}.json")
-    plotGantt(result, f"Results/Gantts/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
-    plotDEGRAD(result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
-    print("optCmax1=", optCmax1," avgoq1=", avgoq1, " qualpenal1=",qualpenal1, " nbrmaint1=",nbrmaint1,  "CPUTime=",cputime1)  
+    plotGantt(result, f"Results/Gantts/RSCStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
+    plotDEGRAD(result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=False)
+    #print("obj1=", optCmax1, "CPUTime=",cputime1)   

@@ -111,7 +111,6 @@ def plotGantt(result, pngfname, plottitle, showgantt):
                 text_y_pos = machine_index[machine] + i*0.15    # Décalage vertical de l'étiquette
                 i+= 1
                 gnt.text(start + duration / 2, text_y_pos, label, ha='center', va='center', fontsize=font_size, color="white")
-
     # Formatting
     gnt.set_yticks(range(len(machines)))
     gnt.set_yticklabels(machines, fontsize=20)
@@ -130,15 +129,108 @@ def plotGantt(result, pngfname, plottitle, showgantt):
     if showgantt == True:
         plt.show()
 
+def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
+    # Initialize plot
+    fig, ehf = plt.subplots(figsize=(15, 8))
+    
+    ehf.minorticks_on()
+    ehf.grid(which='major', linestyle='-', linewidth='0.5', color='grey')   # Customize the major grid
+    ehf.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   # Customize the minor grid
+    
+    ehf.set_xlabel('Time', fontsize=24, weight='bold')                      # Setting labels for x-axis and y-axis
+    ehf.set_ylabel('Processors', fontsize=24, weight='bold')
+    
+    # Extract unique machines
+    tasks_data0 = result['fig']
+    #print(tasks_data0)
+    tasks_data = sorted(tasks_data0, key=lambda x: (x["task"], x["start"],x["end"]))
+    #print(tasks_data)
+    ehf_data = result['degradations']
+    #print(ehf_data)
+
+    machines = sorted(set(task["task"] for task in result['fig']))
+    machine_index = {machine: idx for idx, machine in enumerate(machines)}
+    #print(machine_index)
+
+     # Liste pour stocker les jobs existantes dans les données
+    jobs = set()
+    ehf_time=[[[0] for c,cdeg in enumerate(mdeg)] for m,mdeg in enumerate(ehf_data)]
+    ehf_data2=[[[0] for c,cdeg in enumerate(mdeg)] for m,mdeg in enumerate(ehf_data)]
+    #for m,mdegtime in enumerate(ehf_time):
+    #    print('machine',m+1,': ',mdegtime)    
+    #print(ehf_data)
+    maxdeg=max([max(cdeg) for m,mdeg in enumerate(ehf_data) for c,cdeg in enumerate(mdeg)])
+    #print("maxdeg=",maxdeg)
+    # Plot each task
+    for task in tasks_data:
+        machine = task["task"]
+        start = task["start"]
+        end = task["end"]
+        duration = end - start
+        rsc = task["rsc"]
+        label = task["label"]
+        info = task.get("info", "")
+        m=machine_index[machine]
+        #print(machine, " " , m)
+        
+        if label=="M":
+            components = [int(line.split(':')[1].split('(')[0].strip())-1 for line in info.split('\n')]
+            #c = int(info.split(":")[1].split("(")[0].strip())-1
+            for c in components:
+                if ehf_time[m][c][-1]<end:
+                    ehf_time[m][c].append(start)
+                    ehf_data2[m][c].append(0)
+                    ehf_time[m][c].append(end)
+                    ehf_data2[m][c].append(0)
+        else:
+            for c,cdeg in enumerate(ehf_data2[m]):
+                ehf_time[m][c].append(end)
+                L1=label.split("{")[1]
+                L2=L1.split("}")[0]
+                j=int(L2.split(",")[0])-1
+                i=int(L2.split(",")[1])-1
+                #print("duration=",duration,"degradRate=", data.degradations[m][c][j][i])
+                degr=ehf_data2[m][c][-1]+duration*data.degradations[m][c][j][i]
+                ehf_data2[m][c].append(degr)
+    #for m,mdegtime in enumerate(ehf_time):
+        #print('machine',m+1,': ',mdegtime)
+        #print('machine',m+1,': ',ehf_data[m])
+    for m,mdeg in enumerate(ehf_data2):
+        #print('machine',m+1, 'deg=',mdeg)
+        for c,cdeg in enumerate(mdeg):
+            #print(cdeg)
+            x=ehf_time[m][c]
+            y=[(m+cehf) for t,cehf in enumerate(cdeg)]
+            #print(ehf_data[m][c])
+            #print(x)
+            #print(y)
+            ehf.plot(x,y,label='$C_{'+str(m+1)+','+str(c+1)+'}$')
+        
+   # Formatting
+    ehf.set_yticks(range(len(machines)))
+    ehf.set_yticklabels(machines, fontsize=20)
+    ehf.set_xlabel("Time")
+    ehf.set_title("EHF Chart")
+    plt.title(plottitle,fontsize=25)
+    ehf.legend(title=" Components: $C_{m,c}$ ", fontsize=10, bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    plt.tight_layout()
+    fig.savefig(f"{pngfname}-EHF{plottitle}.png", bbox_inches='tight')
+    if showdegrad == True:
+        plt.show()   
+
+
+
 if __name__ == "__main__": 
     from Save_Read_JSON import lire_fichier_json
     from CommonFunctions import parse_degradations_file, parse_operations_file
     from data import Data 
 
-    nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k1/k1.txt")
-    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k1/instance01/instance.txt")
+    nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/TESTS/k1/k1.txt")
+    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/TESTS/k1/instance1/instance.txt")
 
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     
-    result = lire_fichier_json(f"ComplexSystems/TESTS/k1/instance01/meta_heuristic_result.json")
-    plotGantt(result, "ComplexSystems/test_figure","k1-instance01", showgantt=True)
+    result = lire_fichier_json(f"C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/TESTS/k1/instance1/meta_heuristic_result.json")
+    plotGantt(result, "C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/test_figureGANTT","k1-instance01", showgantt=True)
+    plotDEGRAD(result,data, "C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/test_figureEHF","k1-instance01", showdegrad=True)

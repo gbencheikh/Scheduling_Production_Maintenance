@@ -57,8 +57,8 @@ def parse_degradations_file(filename, inf=99999):
 
                 degradations_2.append([idj, nbop, nbopmac, temp])
 
-    max_len = max(len(ligne) for ligne in dureeMaintenances)
-    dureeMaintenances = [ligne + [0] * (max_len - len(ligne)) for ligne in dureeMaintenances]
+    #max_len = max(len(ligne) for ligne in dureeMaintenances)
+    #dureeMaintenances = [ligne + [0] * (max_len - len(ligne)) for ligne in dureeMaintenances]
     return nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations_2
 
 def parse_operations_file(filename, inf=9999):
@@ -102,31 +102,44 @@ def parse_operations_file(filename, inf=9999):
 
 def completionTime(data, solution,weights):
     maxComposants = max(data.nbComposants)
-    iter = [0 for j in range(data.nbJobs)]
-    i_s = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
+    j_iter = [0 for j in range(data.nbJobs)]
+    i_s  = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
     t_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
     c_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
     D_kl = [[[0] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    Qj = [[1.0]  for j in range(data.nbJobs)]
-    y = copy.deepcopy(solution[2])
-    tij=copy.deepcopy(solution[3])
+    Qj   = [[1.0]  for j in range(data.nbJobs)]
+    y    = copy.deepcopy(solution[2])
+    tij  = copy.deepcopy(solution[3])
     dispo_machines = [0 for _ in range(data.nbMachines)]
+    #print("data.nbOperationsParJob=",data.nbOperationsParJob,"-->",sum(data.nbOperationsParJob)," operations")
+    #print("solution=",solution)
+    FromMILP=False
+    if tij[0][0]>-1:
+        FromMILP=True
+    for ind in range(sum(data.nbOperationsParJob)):
+        j = solution[0][ind]
+        i_s[ind] = j_iter[j]
+        j_iter[j] += 1
+    print(solution[0])
+    print(i_s)    
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
-        i_s[ind] = iter[j]
+        #i_s[ind] = j_iter[j]
         i = i_s[ind]
+        print(j,i)
         if tij[j][i]<=-1:
             if i != 0 :
                 t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
             else :
                 t_ij[j][i] = dispo_machines[k]
         else:
+            #print(f"solution[3][{j}][{i}]=",solution[3][j][i])
             t_ij[j][i] = solution[3][j][i]
         c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
         temp_var = 0
         for l in range(data.nbComposants[k]):
-            ind_ = ind-1
+            ind_ = ind#-1
             while(ind_ >= 0) :
                 if solution[1][ind_] == k:
                     j_ = solution[0][ind_]
@@ -135,19 +148,39 @@ def completionTime(data, solution,weights):
                         D_kl[k][l].append(0)
                     break
                 ind_ -= 1
-            temp_var += D_kl[k][l][-1]*data.alpha_kl[k][l]
-            D_kl[k][l].append(D_kl[k][l][-1] + data.dureeOperations[k][j][i]*data.degradations[k][l][j][i])
-            y[l][j][i] = (D_kl[k][l][-1] > data.seuils_degradation[k][l]) 
-        dispo_machines[k] = c_ij[j][i] + max(y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k]))
-        Qj[j].append(Qj[j][-1]-temp_var)
+            newdeg=data.dureeOperations[k][j][i]*data.degradations[k][l][j][i]
+            newQdeg=newdeg*data.alpha_kl[k][l]
+            newTotdeg=D_kl[k][l][len(D_kl[k][l])-1] + newdeg 
+            D_kl[k][l].append(newTotdeg)
+            if (newTotdeg >=data.seuils_degradation[k][l]):
+                #if y[l][j][i] == False and FromMILP:
+                    #print("error in degradation calculation--Case 1")
+                y[l][j][i] = True
+                #print(f'Degr[{k},{l}]={D_kl[k][l][-1]} and DegThreshold={data.seuils_degradation[k][l]} --> Maintenance of component {l} of machine {k} performed after operation {i} of job {j}')
+            else:
+                #if y[l][j][i] == True and FromMILP:
+                   # print("error in degradation calculation--Case 2")
+                y[l][j][i] = False
+            
+            #if #print(f'degr[{k},{l}]={D_kl[k][l][-1]} Seuil={data.seuils_degradation[k][l]}')
+        print("maintenances machine",k,"=",[int(y[l][j][i])*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])])
+        dispo_machines[k] = c_ij[j][i] + max([int(y[l][j][i])*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])])
+        #print([y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])], max([y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])]))
+        Qj[j].append(Qj[j][-1]-newQdeg)
 
-        iter[j] += 1
+        #j_iter[j] += 1
+    for k in range(data.nbMachines):
+        for l in range(data.nbComposants[k]):
+            print("Machine ",k+1," composant ",l+1, " Dkl=",D_kl[k][l])
     Cmax = max(c_ij[j][data.nbOperationsParJob[j]-1] for j in range(data.nbJobs))
     nbMaintenance=0
     for l in range(maxComposants):
         for j in range(data.nbJobs):
             for i in range(data.nbOperationsParJob[j]):
-                if y[l][j][i]>0:
+                if solution[2][l][j][i]==True:
+                    #if y[l][j][i]==False:
+                       # print("y[",l,"][",j,"][",i,"]==False")
+                    #print("solution[2][",l,"][",j,"][",i,"]==True")
                     nbMaintenance += 1
     penality = 0
     for j in range(data.nbJobs):
