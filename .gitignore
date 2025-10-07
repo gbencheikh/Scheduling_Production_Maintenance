@@ -1,0 +1,12 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Generated plots and result files
+*.png
+*.json
+*.xlsx
+
+# VSCode and system files
+.vscode/
+.DS_Store

@@ -219,7 +219,6 @@ def completionTime(data, solution, weights, debug):
 
     return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout, nbMaintenance, AOQ, penality, feasible
 
-
 def completionTime_previous(data, solution, weights):
     maxComposants = max(data.nbComposants)
     j_iter = [0 for _ in range(data.nbJobs)]
