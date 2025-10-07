@@ -9,6 +9,7 @@ import time
 import copy
 import numpy as np
 from fonctions.Save_Read_JSON import *
+from fonctions.diagram import *
 
 class RSCS:
     def __init__(self, data):
@@ -28,6 +29,7 @@ class RSCS:
         #if random.choice([True, False]):
         #    y[l][j][i] = True # random.choice([True, False])
         return y
+    
     def etat_voisin(self, solution, nbMachines):
         voisin = copy.deepcopy(solution)
         
@@ -37,7 +39,7 @@ class RSCS:
         k = random.randint(0, len(voisin[1]) - 1)
         voisin[1][k] = random.randint(0, nbMachines - 1)
 
-        voisin[2]=self.inserer_maintenance(voisin[2])
+        # voisin[2]=self.inserer_maintenance(voisin[2])
         return voisin
 
     def Run_RSCS(self,tempInit,tempFin,coolRate,iters, objweights,plotshow):
@@ -49,49 +51,42 @@ class RSCS:
             [[-1 for i in range(self.data.nbOperationsParJob[j]) ]  for j in range(self.data.nbJobs) ], #operation's starting times
             [[[] for l in range(self.data.nbComposants[k])] for k in  range(self.data.nbMachines)]
         ]
-        opt_solution = copy.deepcopy(solution)
+        
+        best_solution = copy.deepcopy(solution)
+        Cmax = ComFuns.completionTime(self.data,best_solution,objweights,False)[2]
 
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
         T = tempInit
         iteration = 0
-        iteration_max = iters
         cmax_tab = []
         T_tab=[]
-        #tempFin=0
-        ## itérations
-        while iteration < iteration_max and T > tempFin:
+
+        while iteration < iters and T > tempFin:
             nouvelle_solution = self.etat_voisin(solution, self.data.nbMachines)
-            cost1 = ComFuns.completionTime(self.data,nouvelle_solution,objweights)[7]
-            cost2 = ComFuns.completionTime(self.data,solution,objweights)[7]
-            DE =  cost1 - cost2
-            if DE < 0:
-                solution = copy.deepcopy(nouvelle_solution)
-                #if (cost1 <= opt_Cmax):
-                #    opt_solution = copy.deepcopy(nouvelle_solution)
-                #    opt_Cmax = cost1
-                opt_solution = copy.deepcopy(nouvelle_solution)
-            elif np.exp(-DE/T)>np.random.rand():
-                solution = copy.deepcopy(nouvelle_solution)
-            elif np.exp(-DE/T)>np.random.rand():
-                solution = copy.deepcopy(nouvelle_solution)
-            #elif np.exp(-DE/T)>np.random.rand():
-            #    solution = copy.deepcopy(nouvelle_solution)
-            #elif np.exp(-DE/T)>np.random.rand():
-            #    solution = copy.deepcopy(nouvelle_solution)
-            T *= coolRate
-            iteration += 1
-            Cmax = ComFuns.completionTime(self.data,solution,objweights)[2]
-            cmax_tab.append(Cmax)
-            T_tab.append(T)
+            t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout, nbMaintenance, AOQ, penality, feasible = ComFuns.completionTime(self.data,nouvelle_solution,objweights,False)
+            if feasible:
+                cost1 = cout
+                cost2 = ComFuns.completionTime(self.data,solution,objweights,False)[7]
+                DE =  cost1 - cost2
+                if DE < 0:
+                    solution = copy.deepcopy(nouvelle_solution)
+                    best_solution = copy.deepcopy(nouvelle_solution)
+                elif np.exp(-DE/T) > np.random.rand():
+                    solution = copy.deepcopy(nouvelle_solution)
+                
+                T *= coolRate
+                iteration += 1
+                Cmax = ComFuns.completionTime(self.data, solution, objweights,False)[2]
+                cmax_tab.append(Cmax)
+                T_tab.append(T)
+        
         if plotshow: 
-            #print(cmax_tab[-1], ",", T_tab[-1], "," , iteration)
+            plt.title( "Cmax evolution" )
             plt.plot(cmax_tab)
             plt.show()
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
-        nbrmaintenances=ComFuns.completionTime(self.data,opt_solution,objweights)[8]
-        avgoutqual=ComFuns.completionTime(self.data,opt_solution,objweights)[9]
-        qualpenality=ComFuns.completionTime(self.data,opt_solution,objweights)[10]
-        return opt_solution, opt_Cmax, time.perf_counter()-t0,nbrmaintenances,avgoutqual,qualpenality
+
+        t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout, nbMaintenance, AOQ, Qpenality, feasible = ComFuns.completionTime(self.data,best_solution,objweights,True)
+        
+        return best_solution, Cmax, time.perf_counter()- t0, nbMaintenance, AOQ, Qpenality
 
 if __name__ == "__main__": 
     n1=1
@@ -99,38 +94,44 @@ if __name__ == "__main__":
     tempInit=100
     tempFin=0
     coolRate=0.99
-    iters=30000
+    iters=30
     weights=[0.7,0.2,0.1]
  
-    nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/k{n1}/k{n1}.txt")
-    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
+    nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k{n1}/k{n1}.txt")
+    _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k{n1}/instance{n2}/instance.txt")
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
-    #print(repr(data))
-    alphakl=0.2    # quality degradation rate
-    betakl=0.1         # average degradation rate of componenets 
-    std_betakl=0.0     # standard deviation of degradation rate of componenets
+    
+    alphakl=0.2         # quality degradation rate
+    betakl=0.1          # average degradation rate of componenets 
+    std_betakl=0.0      # standard deviation of degradation rate of componenets
     qjmin=0.95          # acceptable quality level triggering quality penality ()
-    lambdakl=0.8       # degradation threshold triggering PdM 
-    dureemaint=1
+    lambdakl=1        # degradation threshold triggering PdM 
+    dureemaint=1        # maintenance duration 
     
     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     
     data.dureeMaintenances = [[dureemaint for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    x=float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
-    #print(x)
+    x = float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
+    
     data.degradations=[[[[x  for ido in range(data.nbOperationsParJob[j])]  for j in range(data.nbJobs) ] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     data.Qjmin = [qjmin for j in range(data.nbJobs)] 
      
     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
-    print(data.degradations)
-    print(data.seuils_degradation)
+    
+    print(repr(data))
+
     rscs=RSCS(data)
     ## Solve with SA algorithm
-    optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,True)
-    #print("optsolution1=",optsolution1)
+    RSsolution, Cmax, CPU,nbMaint,AOQ,Qpenalty = rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,True)
+    
+    print("RS Solution =", RSsolution)
+
     k=1
-    save_JSON(data,optsolution1,f"Results/RSCStestk{n1}inst{n2}_{k}.json",weights)
-    result = lire_fichier_json(f"Results/RSCStestk{n1}inst{n2}_{k}.json")
-    plotGantt(result, f"Results/Gantts/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
-    plotDEGRAD(result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
-    print("optCmax1=", optCmax1," avgoq1=", avgoq1, " qualpenal1=",qualpenal1, " nbrmaint1=",nbrmaint1,  "CPUTime=",cputime1)  
+    save_JSON(data,RSsolution,f"ComplexSystems/Results/RSCStestk{n1}inst{n2}_{k}.json",weights)
+    result = lire_fichier_json(f"ComplexSystems/Results/RSCStestk{n1}inst{n2}_{k}.json")
+    plotGantt(result, f"ComplexSystems/Results/Gantts/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
+    plotEHF(result, data,  f"ComplexSystems/Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"RS-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
+    
+    plt.show() 
+
+    print("RS solution=", RSsolution,"\n AOQ=", AOQ, "\n quality penaly=",Qpenalty, "\n nbrmaint=",nbMaint,  "\n CPUTime=",CPU)  

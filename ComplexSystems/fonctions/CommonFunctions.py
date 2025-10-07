@@ -100,46 +100,163 @@ def parse_operations_file(filename, inf=9999):
         j += 1
     return nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes
 
-def completionTime(data, solution,weights):
-    maxComposants = max(data.nbComposants)
-    j_iter = [0 for j in range(data.nbJobs)]
+def completionTime(data, solution, weights, debug):
+    if debug:
+        print(f"Solution 0 {solution[0]}")
+        print(f"Solution 1 {solution[1]}")
+        print(f"Solution 2 {solution[2]}")
+        print(f"Solution 3 {solution[3]}")
+
+    j_iter = [0 for _ in range(data.nbJobs)]
     i_s  = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
     t_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
     c_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
     D_kl = [[[0] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    Qj   = [[1.0]  for j in range(data.nbJobs)]
+    Qj   = [[1.0]  for _ in range(data.nbJobs)]
+    nbMaintenance = 0
     y    = copy.deepcopy(solution[2])
     tij  = copy.deepcopy(solution[3])
+    
     dispo_machines = [0 for _ in range(data.nbMachines)]
-    #print("data.nbOperationsParJob=",data.nbOperationsParJob,"-->",sum(data.nbOperationsParJob)," operations")
-    #print("solution=",solution)
-    FromMILP=False
-    if tij[0][0]>-1:
-        FromMILP=True
+    
     for ind in range(sum(data.nbOperationsParJob)):
         j = solution[0][ind]
         i_s[ind] = j_iter[j]
         j_iter[j] += 1
-    print(solution[0])
-    print(i_s)    
+
     for ind in range(sum(data.nbOperationsParJob)):
-        k = solution[1][ind]
-        j = solution[0][ind]
-        #i_s[ind] = j_iter[j]
-        i = i_s[ind]
-        print(j,i)
-        if tij[j][i]<=-1:
+        k = solution[1][ind]        # machine index
+        j = solution[0][ind]        # job index
+        i = i_s[ind]                # operation index
+    
+        if debug: 
+            print(f"O_{j}_{i} on machine {k} duration {data.dureeOperations[k][j][i]}")
+
+        # calcul de la date de début au plus tôt 
+        if tij[j][i]==-1:
             if i != 0 :
                 t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
             else :
                 t_ij[j][i] = dispo_machines[k]
         else:
-            #print(f"solution[3][{j}][{i}]=",solution[3][j][i])
             t_ij[j][i] = solution[3][j][i]
-        c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
-        temp_var = 0
+
+        if debug: 
+            print(f"t_{j}{i} = {t_ij[j][i]}")
+
+        feasible = True
+
+        # Mise à jour de la dégradation
         for l in range(data.nbComposants[k]):
-            ind_ = ind#-1
+            if debug: 
+                print(f"    Component {l} degradation {D_kl[k][l][len(D_kl[k][l])-1]}")
+
+            # calcul de la dégradation potentielle pour le composant l de la machine k
+            newdeg = data.dureeOperations[k][j][i] * data.degradations[k][l][j][i]    # component RUL degradation
+            newTotdeg = D_kl[k][l][len(D_kl[k][l])-1] + newdeg
+
+            if debug:
+                print(f"        new to degred = {newTotdeg} <? {data.seuils_degradation[k][l]}")
+            
+            if (newTotdeg > data.seuils_degradation[k][l]):
+                # si la degradation dépasse le seuil
+                # chercher la dernière opération executée sur la machine pour placer une tâche de maintenance
+                found = False
+                
+                ind_ = ind-1
+                while(ind_ >= 0) :
+                    if solution[1][ind_] == k:
+                        found = True
+                        j_ = solution[0][ind_]
+                        i_ = i_s[ind_]
+                        if y[l][j_][i_] == False:
+                            y[l][j_][i_] = True
+
+                            if debug: 
+                                print(f"        maintenance planned")
+
+                            nbMaintenance += 1
+                            D_kl[k][l].append(0)
+                            D_kl[k][l].append(newdeg)
+
+                            # mettre à jour la disponibilité de la machine 
+                            new_dispo_machine = c_ij[j_][i_] + data.dureeMaintenances[k][l]
+                            if new_dispo_machine > dispo_machines[k]:
+                                dispo_machines[k] = new_dispo_machine
+
+                            # mettre à jour la date de début de la tâche
+                            if new_dispo_machine > t_ij[j][i] :
+                                t_ij[j][i]  = dispo_machines[k]
+
+                            if debug: 
+                                print(f"        dispo machine = {new_dispo_machine}")
+                        break
+                    ind_ -= 1
+                if found == False: 
+                    feasible = False
+            else:
+                D_kl[k][l].append(newTotdeg)
+
+        
+        # calcul de la date de fin de la tâche 
+        c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
+        if dispo_machines[k] < c_ij[j][i]: 
+            dispo_machines[k] = c_ij[j][i]
+
+        if debug: 
+            print(f"    C_{j}{i} = {c_ij[j][i]}")
+
+        newQdeg = newdeg * data.alpha_kl[k][l] # quality degradation 
+        Qj[j].append(Qj[j][-1]-newQdeg)
+
+    Cmax = max(c_ij[j][data.nbOperationsParJob[j]-1] for j in range(data.nbJobs))
+    penality = 0
+    for j in range(data.nbJobs):
+        if Qj[j][-1] < data.Qjmin[j]:
+            penality += 1
+    AOQ = sum([Qj[j][-1] for j in range(data.nbJobs)]) / data.nbJobs
+    cout = weights[0]*Cmax + weights[1]*nbMaintenance + weights[2]*penality
+
+    return t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout, nbMaintenance, AOQ, penality, feasible
+
+
+def completionTime_previous(data, solution, weights):
+    maxComposants = max(data.nbComposants)
+    j_iter = [0 for _ in range(data.nbJobs)]
+    i_s  = [0 for j in range(data.nbJobs) for i in range(data.nbOperationsParJob[j])]
+    t_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
+    c_ij = [[0 for i in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)]
+    D_kl = [[[0] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
+    Qj   = [[1.0]  for _ in range(data.nbJobs)]
+
+    y    = copy.deepcopy(solution[2])
+    tij  = copy.deepcopy(solution[3])
+    
+    dispo_machines = [0 for _ in range(data.nbMachines)]
+    
+    for ind in range(sum(data.nbOperationsParJob)):
+        j = solution[0][ind]
+        i_s[ind] = j_iter[j]
+        j_iter[j] += 1
+
+    for ind in range(sum(data.nbOperationsParJob)):
+        k = solution[1][ind]        # machine index
+        j = solution[0][ind]        # job index
+        i = i_s[ind]                # operation index
+        
+        # print(f"O_{j}_{i}")
+        
+        if tij[j][i]==-1:
+            if i != 0 :
+                t_ij[j][i] = c_ij[j][i-1] if (c_ij[j][i-1] >= dispo_machines[k]) else dispo_machines[k]
+            else :
+                t_ij[j][i] = dispo_machines[k]
+        else:
+            t_ij[j][i] = solution[3][j][i]
+
+        c_ij[j][i] = t_ij[j][i] + data.dureeOperations[k][j][i]
+        for l in range(data.nbComposants[k]):
+            ind_ = ind
             while(ind_ >= 0) :
                 if solution[1][ind_] == k:
                     j_ = solution[0][ind_]
@@ -148,39 +265,29 @@ def completionTime(data, solution,weights):
                         D_kl[k][l].append(0)
                     break
                 ind_ -= 1
-            newdeg=data.dureeOperations[k][j][i]*data.degradations[k][l][j][i]
-            newQdeg=newdeg*data.alpha_kl[k][l]
-            newTotdeg=D_kl[k][l][len(D_kl[k][l])-1] + newdeg 
+            
+            newdeg = data.dureeOperations[k][j][i] * data.degradations[k][l][j][i]    # component RUL degradation
+            newQdeg = newdeg * data.alpha_kl[k][l] # quality degradation 
+            
+            newTotdeg = D_kl[k][l][len(D_kl[k][l])-1] + newdeg 
+            
             D_kl[k][l].append(newTotdeg)
-            if (newTotdeg >=data.seuils_degradation[k][l]):
-                #if y[l][j][i] == False and FromMILP:
-                    #print("error in degradation calculation--Case 1")
+            if (newTotdeg >= data.seuils_degradation[k][l]):
                 y[l][j][i] = True
-                #print(f'Degr[{k},{l}]={D_kl[k][l][-1]} and DegThreshold={data.seuils_degradation[k][l]} --> Maintenance of component {l} of machine {k} performed after operation {i} of job {j}')
             else:
-                #if y[l][j][i] == True and FromMILP:
-                   # print("error in degradation calculation--Case 2")
                 y[l][j][i] = False
             
-            #if #print(f'degr[{k},{l}]={D_kl[k][l][-1]} Seuil={data.seuils_degradation[k][l]}')
-        print("maintenances machine",k,"=",[int(y[l][j][i])*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])])
         dispo_machines[k] = c_ij[j][i] + max([int(y[l][j][i])*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])])
-        #print([y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])], max([y[l][j][i]*data.dureeMaintenances[k][l] for l in range(data.nbComposants[k])]))
         Qj[j].append(Qj[j][-1]-newQdeg)
 
-        #j_iter[j] += 1
-    for k in range(data.nbMachines):
-        for l in range(data.nbComposants[k]):
-            print("Machine ",k+1," composant ",l+1, " Dkl=",D_kl[k][l])
+
+
     Cmax = max(c_ij[j][data.nbOperationsParJob[j]-1] for j in range(data.nbJobs))
     nbMaintenance=0
     for l in range(maxComposants):
         for j in range(data.nbJobs):
             for i in range(data.nbOperationsParJob[j]):
                 if solution[2][l][j][i]==True:
-                    #if y[l][j][i]==False:
-                       # print("y[",l,"][",j,"][",i,"]==False")
-                    #print("solution[2][",l,"][",j,"][",i,"]==True")
                     nbMaintenance += 1
     penality = 0
     for j in range(data.nbJobs):

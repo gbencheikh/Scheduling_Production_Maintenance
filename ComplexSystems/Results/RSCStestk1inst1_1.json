@@ -1,88 +1,8 @@
 {
-    "Cmax_x": 11,
+    "Cmax_x": 18,
     "fig": [
         {
             "task": "Machine 1",
-            "start": 0,
-            "end": 2,
-            "rsc": "J2",
-            "label": "$O_{2,1}$",
-            "info": "J2"
-        },
-        {
-            "task": "Machine 1",
-            "start": 2,
-            "end": 3,
-            "rsc": "J4",
-            "label": "$O_{4,1}$",
-            "info": "J4"
-        },
-        {
-            "task": "Machine 1",
-            "start": 6,
-            "end": 10,
-            "rsc": "J1",
-            "label": "$O_{1,3}$",
-            "info": "J1"
-        },
-        {
-            "task": "Machine 2",
-            "start": 2,
-            "end": 6,
-            "rsc": "J1",
-            "label": "$O_{1,2}$",
-            "info": "J1"
-        },
-        {
-            "task": "Machine 2",
-            "start": 6,
-            "end": 7,
-            "rsc": "J3",
-            "label": "$O_{3,2}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 3",
-            "start": 0,
-            "end": 6,
-            "rsc": "J3",
-            "label": "$O_{3,1}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 3",
-            "start": 7,
-            "end": 11,
-            "rsc": "J2",
-            "label": "$O_{2,3}$",
-            "info": "J2"
-        },
-        {
-            "task": "Machine 4",
-            "start": 3,
-            "end": 4,
-            "rsc": "J4",
-            "label": "$O_{4,2}$",
-            "info": "J4"
-        },
-        {
-            "task": "Machine 4",
-            "start": 7,
-            "end": 9,
-            "rsc": "J3",
-            "label": "$O_{3,3}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 4",
-            "start": 9,
-            "end": 10,
-            "rsc": "J3",
-            "label": "$O_{3,4}$",
-            "info": "J3"
-        },
-        {
-            "task": "Machine 5",
             "start": 0,
             "end": 2,
             "rsc": "J1",
@@ -90,73 +10,235 @@
             "info": "J1"
         },
         {
-            "task": "Machine 5",
+            "task": "Machine 1",
             "start": 2,
             "end": 7,
+            "rsc": "J1",
+            "label": "$O_{1,2}$",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 1",
+            "start": 7,
+            "end": 8,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (duree=1)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 7,
+            "end": 8,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (duree=1)"
+        },
+        {
+            "task": "Machine 1",
+            "start": 9,
+            "end": 15,
+            "rsc": "J3",
+            "label": "$O_{3,2}$",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 1",
+            "start": 15,
+            "end": 17,
+            "rsc": "J3",
+            "label": "$O_{3,3}$",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 2",
+            "start": 0,
+            "end": 5,
+            "rsc": "J2",
+            "label": "$O_{2,1}$",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 5,
+            "end": 6,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (duree=1)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 5,
+            "end": 6,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (duree=1)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 6,
+            "end": 12,
             "rsc": "J2",
             "label": "$O_{2,2}$",
             "info": "J2"
+        },
+        {
+            "task": "Machine 2",
+            "start": 12,
+            "end": 13,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 1 (duree=1)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 12,
+            "end": 13,
+            "rsc": "Maintenances",
+            "label": "M",
+            "info": "Composant : 2 (duree=1)"
+        },
+        {
+            "task": "Machine 2",
+            "start": 13,
+            "end": 18,
+            "rsc": "J2",
+            "label": "$O_{2,3}$",
+            "info": "J2"
+        },
+        {
+            "task": "Machine 3",
+            "start": 0,
+            "end": 2,
+            "rsc": "J4",
+            "label": "$O_{4,1}$",
+            "info": "J4"
+        },
+        {
+            "task": "Machine 3",
+            "start": 2,
+            "end": 4,
+            "rsc": "J4",
+            "label": "$O_{4,2}$",
+            "info": "J4"
+        },
+        {
+            "task": "Machine 3",
+            "start": 7,
+            "end": 12,
+            "rsc": "J1",
+            "label": "$O_{1,3}$",
+            "info": "J1"
+        },
+        {
+            "task": "Machine 4",
+            "start": 17,
+            "end": 18,
+            "rsc": "J3",
+            "label": "$O_{3,4}$",
+            "info": "J3"
+        },
+        {
+            "task": "Machine 5",
+            "start": 0,
+            "end": 9,
+            "rsc": "J3",
+            "label": "$O_{3,1}$",
+            "info": "J3"
         }
     ],
     "quality": [
         [
             1.0,
             0.96,
-            0.8799999999999999,
-            0.7999999999999998
+            0.86,
+            0.76
+        ],
+        [
+            1.0,
+            0.9,
+            0.78,
+            0.68
+        ],
+        [
+            1.0,
+            0.82,
+            0.7,
+            0.6599999999999999,
+            0.6399999999999999
         ],
         [
             1.0,
             0.96,
-            0.86,
-            0.78
-        ],
-        [
-            1.0,
-            0.88,
-            0.86,
-            0.82,
-            0.7999999999999999
-        ],
-        [
-            1.0,
-            0.98,
-            0.96
+            0.9199999999999999
         ]
     ],
     "degradations": [
         [
             [
                 0,
-                0,
                 0.2,
+                0.7,
                 0,
-                0.1,
-                0,
-                0.4
+                0.6000000000000001,
+                0.8
             ],
             [
                 0,
-                0,
                 0.2,
+                0.7,
                 0,
-                0.1,
-                0,
-                0.4
+                0.6000000000000001,
+                0.8
             ]
         ],
         [
             [
                 0,
+                0.5,
                 0,
+                0.6000000000000001,
+                0,
+                0.5
+            ],
+            [
+                0,
+                0.5,
+                0,
+                0.6000000000000001,
+                0,
+                0.5
+            ]
+        ],
+        [
+            [
+                0,
+                0.2,
                 0.4,
-                0,
-                0.1
+                0.9
             ],
             [
                 0,
-                0,
+                0.2,
                 0.4,
+                0.9
+            ],
+            [
+                0,
+                0.2,
+                0.4,
+                0.9
+            ]
+        ],
+        [
+            [
+                0,
+                0.1
+            ],
+            [
+                0,
+                0.1
+            ],
+            [
                 0,
                 0.1
             ]
@@ -164,83 +246,19 @@
         [
             [
                 0,
-                0,
-                0.6000000000000001,
-                0,
-                0.4
+                0.9
             ],
             [
                 0,
-                0,
-                0.6000000000000001,
-                0,
-                0.4
+                0.9
             ],
             [
                 0,
-                0,
-                0.6000000000000001,
-                0,
-                0.4
-            ]
-        ],
-        [
-            [
-                0,
-                0,
-                0.1,
-                0,
-                0.2,
-                0,
-                0.1
+                0.9
             ],
             [
                 0,
-                0,
-                0.1,
-                0,
-                0.2,
-                0,
-                0.1
-            ],
-            [
-                0,
-                0,
-                0.1,
-                0,
-                0.2,
-                0,
-                0.1
-            ]
-        ],
-        [
-            [
-                0,
-                0,
-                0.2,
-                0,
-                0.5
-            ],
-            [
-                0,
-                0,
-                0.2,
-                0,
-                0.5
-            ],
-            [
-                0,
-                0,
-                0.2,
-                0,
-                0.5
-            ],
-            [
-                0,
-                0,
-                0.2,
-                0,
-                0.5
+                0.9
             ]
         ]
     ]

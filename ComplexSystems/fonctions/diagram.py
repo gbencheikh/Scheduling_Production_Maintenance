@@ -126,8 +126,8 @@ def plotGantt(result, pngfname, plottitle, showgantt):
 
     plt.tight_layout()
     fig.savefig(f"{pngfname}-GanttDiagram{plottitle}.png", bbox_inches='tight')
-    if showgantt == True:
-        plt.show()
+    # if showgantt == True:
+        # plt.show()
 
 def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
     # Initialize plot
@@ -150,34 +150,25 @@ def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
 
     machines = sorted(set(task["task"] for task in result['fig']))
     machine_index = {machine: idx for idx, machine in enumerate(machines)}
-    #print(machine_index)
-
-     # Liste pour stocker les jobs existantes dans les données
-    jobs = set()
+    
     ehf_time=[[[0] for c,cdeg in enumerate(mdeg)] for m,mdeg in enumerate(ehf_data)]
     ehf_data2=[[[0] for c,cdeg in enumerate(mdeg)] for m,mdeg in enumerate(ehf_data)]
-    #for m,mdegtime in enumerate(ehf_time):
-    #    print('machine',m+1,': ',mdegtime)    
-    #print(ehf_data)
-    maxdeg=max([max(cdeg) for m,mdeg in enumerate(ehf_data) for c,cdeg in enumerate(mdeg)])
-    #print("maxdeg=",maxdeg)
+    
     # Plot each task
     for task in tasks_data:
         machine = task["task"]
         start = task["start"]
         end = task["end"]
         duration = end - start
-        rsc = task["rsc"]
         label = task["label"]
         info = task.get("info", "")
-        m=machine_index[machine]
-        #print(machine, " " , m)
+        m = machine_index[machine]
         
         if label=="M":
             components = [int(line.split(':')[1].split('(')[0].strip())-1 for line in info.split('\n')]
-            #c = int(info.split(":")[1].split("(")[0].strip())-1
+            
             for c in components:
-                if ehf_time[m][c][-1]<end:
+                if ehf_time[m][c][-1] < end:
                     ehf_time[m][c].append(start)
                     ehf_data2[m][c].append(0)
                     ehf_time[m][c].append(end)
@@ -185,25 +176,18 @@ def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
         else:
             for c,cdeg in enumerate(ehf_data2[m]):
                 ehf_time[m][c].append(end)
-                L1=label.split("{")[1]
-                L2=L1.split("}")[0]
+                L1 = label.split("{")[1]
+                L2 = L1.split("}")[0]
                 j=int(L2.split(",")[0])-1
                 i=int(L2.split(",")[1])-1
-                #print("duration=",duration,"degradRate=", data.degradations[m][c][j][i])
-                degr=ehf_data2[m][c][-1]+duration*data.degradations[m][c][j][i]
+               
+                degr = ehf_data2[m][c][-1] + duration*data.degradations[m][c][j][i]
                 ehf_data2[m][c].append(degr)
-    #for m,mdegtime in enumerate(ehf_time):
-        #print('machine',m+1,': ',mdegtime)
-        #print('machine',m+1,': ',ehf_data[m])
+
     for m,mdeg in enumerate(ehf_data2):
-        #print('machine',m+1, 'deg=',mdeg)
         for c,cdeg in enumerate(mdeg):
-            #print(cdeg)
             x=ehf_time[m][c]
             y=[(m+cehf) for t,cehf in enumerate(cdeg)]
-            #print(ehf_data[m][c])
-            #print(x)
-            #print(y)
             ehf.plot(x,y,label='$C_{'+str(m+1)+','+str(c+1)+'}$')
         
    # Formatting
@@ -216,9 +200,150 @@ def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
 
     plt.tight_layout()
     fig.savefig(f"{pngfname}-EHF{plottitle}.png", bbox_inches='tight')
-    if showdegrad == True:
-        plt.show()   
+    # if showdegrad == True:
+        # plt.show()   
 
+def plotEHF(result, data, pngfname, plottitle, showdegrad):
+    """
+    Plot the degradation curves of machine components over time based on task execution and maintenance events.
+
+    This function visualizes the evolution of component degradation for multiple machines in a 
+    production system. It uses task scheduling information (`result['fig']`) and degradation rates 
+    (`data.degradations`) to construct time-series curves showing how each component's degradation 
+    changes during operation and maintenance periods.
+
+    During normal operation, component degradation increases linearly with time according to 
+    degradation coefficients. During maintenance tasks, degradation levels are reset to zero.
+
+    Parameters
+    ----------
+    result : dict
+        Dictionary containing the simulation or scheduling results. Expected keys:
+        - `'fig'`: list of dictionaries, each representing a task with fields:
+          * `"task"` (str or int): identifier of the machine executing the task.
+          * `"start"` (float): task start time.
+          * `"end"` (float): task end time.
+          * `"label"` (str): task type, typically "M" for maintenance or another label for processing.
+          * `"info"` (str, optional): textual information containing component indices affected by maintenance.
+        - `'degradations'`: nested list representing the degradation levels or history by machine and component.
+
+    data : object
+        Data object containing degradation rate matrices. Must include the attribute:
+        - `degradations[m][c][j][i]`: degradation rate for machine `m`, component `c`, job `j`, and operation `i`.
+
+    pngfname : str
+        Base filename (without extension) for saving the output figure.
+
+    plottitle : str
+        Title to display on the plot and to append to the saved filename.
+
+    showdegrad : bool
+        Flag indicating whether to show detailed degradation information (currently unused 
+        in this implementation but kept for compatibility).
+
+    Notes
+    -----
+    - The plot displays one degradation curve per component, labeled as :math:`C_{m,c}` 
+      (machine `m`, component `c`).
+    - Each machine is vertically offset in the Y-axis for visual separation.
+    - Maintenance tasks reset the degradation value to zero at the end of the maintenance period.
+
+    Output
+    ------
+    None
+        This function does not return a value. It generates and saves a Gantt chart based on the provided 
+        scheduling data.
+
+    """
+
+    # Initialize plot
+    fig, ehf = plt.subplots(figsize=(15, 8))
+
+    ehf.minorticks_on()
+    ehf.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+    ehf.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')
+
+    ehf.set_xlabel('Time', fontsize=24, weight='bold')
+    ehf.set_ylabel('Processors', fontsize=24, weight='bold')
+
+    # Sort tasks (existing)
+    tasks_data0 = result['fig']
+    tasks_data = sorted(tasks_data0, key=lambda x: (x["task"], x["start"], x["end"]))
+    ehf_data = result['degradations']
+
+    machines = sorted(set(task["task"] for task in result['fig']))
+    machine_index = {machine: idx for idx, machine in enumerate(machines)}
+
+    # Initialize time and degradation lists per machine per component
+    ehf_time = [ [ [0] for _ in mdeg ] for mdeg in ehf_data ]
+    ehf_data2 = [ [ [0] for _ in mdeg ] for mdeg in ehf_data ]
+
+    # Process each task
+    for task in tasks_data:
+        machine = task["task"]
+        start = task["start"]
+        end = task["end"]
+        duration = end - start
+        label = task["label"]
+        info = task.get("info", "")
+        m = machine_index[machine]
+
+        if label == "M":
+            # maintenance: components listed in info are reset (or have special handling)
+            components = [int(line.split(':')[1].split('(')[0].strip())-1 for line in info.split('\n') if line.strip()]
+            for c in components:
+                # avoid duplicate times if already appended beyond 'end'
+                if ehf_time[m][c][-1] < end:
+                    # usually maintenance resets -> put start with current value and then end with 0 (or explicit reset)
+                    current_val = ehf_data2[m][c][-1]
+                    ehf_time[m][c].append(start)
+                    ehf_data2[m][c].append(current_val)  # hold previous until maintenance start
+                    ehf_time[m][c].append(end)
+                    ehf_data2[m][c].append(0)  # after maintenance value = 0 (si tel est le comportement)
+        else:
+            # normal processing: update every component's degradation according to degradations matrix
+            # parse label: expected format "{job,op}" inside braces
+            L1 = label.split("{")[1] if "{" in label else ""
+            L2 = L1.split("}")[0] if "}" in L1 else ""
+            if L2:
+                j = int(L2.split(",")[0]) - 1
+                i = int(L2.split(",")[1]) - 1
+            else:
+                # safety fallback: consider j,i = 0,0 (ouignable selon ton format réel)
+                j, i = 0, 0
+
+            for c, cdeg in enumerate(ehf_data2[m]):
+                last_val = cdeg[-1]
+                # append start time holding the previous value so the step starts at 'start'
+                # only append if last time strictly less than start to avoid duplicate equal timestamps
+                if ehf_time[m][c][-1] < start:
+                    ehf_time[m][c].append(start)
+                    ehf_data2[m][c].append(last_val)
+                # compute new degradation at end
+                degr = last_val + duration * data.degradations[m][c][j][i]
+                ehf_time[m][c].append(end)
+                ehf_data2[m][c].append(degr)
+
+    # Plotting: offset each machine vertically by its index so components for same machine are stacked
+    for m, mdeg in enumerate(ehf_data2):
+        for c, cdeg in enumerate(mdeg):
+            x = ehf_time[m][c]
+            # add machine offset so components appear around machine index
+            y = [val + m for val in cdeg]
+            ehf.plot(x, y, label=f'$C_{{{m+1},{c+1}}}$')
+
+    # Formatting
+    ehf.set_yticks(range(len(machines)))
+    ehf.set_yticklabels(machines, fontsize=20)
+    ehf.set_xlabel("Time")
+    ehf.set_title("EHF Chart")
+    plt.title(plottitle, fontsize=25)
+    ehf.legend(title=" Components: $C_{m,c}$ ", fontsize=10, bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    plt.tight_layout()
+    fig.savefig(f"{pngfname}-EHF{plottitle}.png", bbox_inches='tight')
+    # if showdegrad == True:
+        # plt.show()
 
 
 if __name__ == "__main__": 

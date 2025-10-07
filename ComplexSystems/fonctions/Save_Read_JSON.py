@@ -18,7 +18,7 @@ def convert_ndarray_to_list(obj):
 def save_JSON(data, solution, fileName,weights):
     taches = []
     
-    t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality = completionTime(data,solution,weights)
+    t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality,feasible = completionTime(data,solution,weights,False)
     print(" y:")
     for i,s in enumerate(y):
         print(s)
