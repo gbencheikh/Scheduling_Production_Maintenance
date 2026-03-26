@@ -51,7 +51,8 @@ class Data:
         """
         self.nbJobs = nbJobs
         self.nbMachines = nbMachines
-        self.nbComposants = nbComposants
+        #self.nbComposants =nbComposants
+        self.nbComposants = list(nbComposants) if isinstance(nbComposants, set) else nbComposants
         self.seuils_degradation = seuils_degradation
         self.dureeMaintenances = dureeMaintenances
         self.degradations = degradations

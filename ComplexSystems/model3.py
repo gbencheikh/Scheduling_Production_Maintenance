@@ -224,7 +224,7 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         #print("starting times=",[t_ij[j][i].x for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])])
                
         optsolution1 = [
-            [j for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
+            [j for j in range(self.data.nbJobs) for _ in range(self.data.nbOperationsParJob[j])],
             [sum(k*int(x_ijkn[n][k][j][i].x) for n in range(self.n_max) for k in range(self.data.nbMachines)) for j in range(self.data.nbJobs) for i in range(self.data.nbOperationsParJob[j])],
             #[[[max([(int(x_ijkn[n][k][j][i].x)*int(y_kln[n][k][l].x)) for n in range(self.n_max) for k in range(self.data.nbMachines)])  for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))]
             [[[False  for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for l in range(max(self.data.nbComposants))],
@@ -252,9 +252,12 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         print("optsolution1[2]=",optsolution1[2])
         for j in range(self.data.nbJobs):
             for i in range(self.data.nbOperationsParJob[j]):
-                print(optsolution1[1])
-                machji= data.dureeOperations[j][i][int(optsolution1[1][j][i])] #sum(data.dureeOperations[j][i][k]*int(x_ijkn[n][k][j][i].x) for n in range(self.n_max) for k in range(self.data.nbMachines)) 
-                #print(f"debut_{j}{i}={optsolution1[3][j][i]}--{t_ij[j][i].x} -- duree ={machji}")
+                ind=i+sum(self.data.nbOperationsParJob[j1] for j1 in range(j))
+                mach=int(optsolution1[1][ind])
+                #print(f"j={j+1}, i={i+1}, optsolution1[1][{ind}]={optsolution1[1][ind]}")
+                #print("machine=",ind+1)
+                machji=self.data.dureeOperations[mach][j][i] #sum(data.dureeOperations[j][i][k]*int(x_ijkn[n][k][j][i].x) for n in range(self.n_max) for k in range(self.data.nbMachines)) 
+                print(f"debut_{j+1}{i+1}={optsolution1[3][j][i]}-- machine = {mach+1} -- duree ={machji}")
         return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1
 
 if __name__ == "__main__": 

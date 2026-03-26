@@ -18,28 +18,29 @@ def convert_ndarray_to_list(obj):
 def save_JSON(data, solution, fileName,weights):
     taches = []
     
+    #t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality = completionTime_previous(data,solution,weights)
     t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality,feasible = completionTime(data,solution,weights,False)
-    print(" y:")
-    for i,s in enumerate(y):
-        print(s)
-    print("solution[2]:")
-    for i,s in enumerate(solution[2]):
-        print(s)
+    #print(" y:")
+    #for i,s in enumerate(y):
+    #    print(s)
+    #print("solution[2]:")
+    #for i,s in enumerate(solution[2]):
+    #    print(s)
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
         i = i_s[ind]
-        start = t_ij[j][i]
-        end = c_ij[j][i]
+        start_ji = solution[3][j][i] #  t_ij[j][i]
+        end_ji = start_ji + data.dureeOperations[k][j][i] #c_ij[j][i]
         machine = k+1
-        taches.append(dict(task=f"Machine {machine}",
-                     start=t_ij[j][i],
-                     end=c_ij[j][i],
-                     rsc=f"J{j+1}",
-                     label="$O_{%d,%d}$" % (j+1,i+1),
-                     info=f"J{j+1}"))
+        taches.append(dict(task=f"Machine {machine}", 
+                           start=start_ji, 
+                           end=end_ji, 
+                           rsc=f"J{j+1}", 
+                           label="$O_{%d,%d}$" % (j+1,i+1), info=f"J{j+1}"))
+        print("O_%d,%d : machine=%d  start=%d end=%d" % (j+1,i+1,k+1,start_ji,end_ji))
     ############
-    
+    """
     for k in range(data.nbMachines):
         for l in range(data.nbComposants[k]):
             for ind in range(sum(data.nbOperationsParJob)):
@@ -58,7 +59,7 @@ def save_JSON(data, solution, fileName,weights):
                                  label=f"M", 
                                  info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
                     taches.append(tache)
-                    """
+                    
                     for ind_ in range(ind, sum(data.nbOperationsParJob)):
                         if solution[1][ind_] == k_ :
                             machine = k+1
@@ -74,6 +75,40 @@ def save_JSON(data, solution, fileName,weights):
                             taches.append(tache)
                             break
                     """
+    for ind in range(sum(data.nbOperationsParJob)):
+        i = i_s[ind]
+        j = solution[0][ind]
+        k = solution[1][ind]
+        for l in range(data.nbComposants[k]):
+            if y[l][j][i]:
+                machine = k+1
+                composant = l+1
+                start_time = c_ij[j][i]
+                finish_time = start_time + data.dureeMaintenances[k][l]
+                tache = dict(task=f"Machine {machine}", 
+                             start=start_time, 
+                             end=finish_time, 
+                             rsc=f"Maintenances",  
+                             label=f"M",  
+                             info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
+                taches.append(tache)
+    """    
+        for k in range(data.nbMachines):
+            if solution[1][ind]==k:
+                for l in range(data.nbComposants[k]):
+                    if y[l][j][i]:
+                        machine = k+1
+                        composant = l+1
+                        start_time = c_ij[j][i]
+                        finish_time = start_time + data.dureeMaintenances[k][l]
+                        tache = dict(task=f"Machine {machine}", 
+                                     start=start_time, end=finish_time, 
+                                     rsc=f"Maintenances",  
+                                     label=f"M",  
+                                     info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
+                        taches.append(tache)
+"""
+    
     taches = sorted(taches, key=lambda x: (x["task"], x["start"],x["end"]))
     data = {
         "Cmax_x": Cmax,
@@ -116,4 +151,4 @@ def afficher_fichier_json(data):
 
 
 if __name__ == "__main__": 
-    lire_fichier_json(f"ComplexSystems/TESTS/k1/instance01/meta_heuristic_result.json")
+    lire_fichier_json(f"ComplexSystems/Results/JSONS/MILP4testk1inst1_1.json")

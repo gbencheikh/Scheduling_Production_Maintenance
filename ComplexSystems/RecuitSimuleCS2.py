@@ -9,6 +9,7 @@ import time
 import copy
 import numpy as np
 from fonctions.Save_Read_JSON import *
+from fonctions.diagram import *
 
 class RSCS:
     def __init__(self, data):
@@ -49,8 +50,8 @@ class RSCS:
             [[-1 for i in range(self.data.nbOperationsParJob[j]) ]  for j in range(self.data.nbJobs) ] #operation's starting times
         ]
         opt_solution = copy.deepcopy(solution)
-
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
+        opt_sol_completionTime=ComFuns.completionTime(self.data,opt_solution,objweights,False)
+        opt_Cmax = opt_sol_completionTime[2]
         T = tempInit
         iteration = 0
         iteration_max = iters
@@ -59,9 +60,13 @@ class RSCS:
         #tempFin=0
         ## itérations
         while iteration < iteration_max and T > tempFin:
+            sol_completionTime=ComFuns.completionTime(self.data,solution,objweights,False)
+            #print("Cmax=",sol_completionTime[2], " cout=",sol_completionTime[7], " NbrMaint=",sol_completionTime[8], " AOQ=",sol_completionTime[9], " Penalty=",sol_completionTime[10])
             nouvelle_solution = self.etat_voisin(solution, self.data.nbMachines)
-            cost1 = ComFuns.completionTime(self.data,nouvelle_solution,objweights)[7]
-            cost2 = ComFuns.completionTime(self.data,solution,objweights)[7]
+            nouvelle_sol_completionTime=ComFuns.completionTime(self.data,nouvelle_solution,objweights,False)
+            
+            cost1 = nouvelle_sol_completionTime[7]
+            cost2 = sol_completionTime[7]
             DE =  cost1 - cost2
             if DE < 0:
                 solution = copy.deepcopy(nouvelle_solution)
@@ -79,17 +84,22 @@ class RSCS:
             #    solution = copy.deepcopy(nouvelle_solution)
             T *= coolRate
             iteration += 1
-            Cmax = ComFuns.completionTime(self.data,solution,objweights)[2]
+            Cmax = sol_completionTime[2]
             cmax_tab.append(Cmax)
             T_tab.append(T)
+        
+        opt_sol_completionTime=ComFuns.completionTime(self.data,opt_solution,objweights,False)
+        opt_Cmax = opt_sol_completionTime[2]
+        nbrmaintenances=opt_sol_completionTime[8]
+        avgoutqual=opt_sol_completionTime[9]
+        qualpenality=opt_sol_completionTime[10]
         if plotshow: 
             #print(cmax_tab[-1], ",", T_tab[-1], "," , iteration)
             plt.plot(cmax_tab)
+            plt.title(f"wheights={objweights}, optCmax={opt_Cmax}",fontsize=15)
             plt.show()
-        opt_Cmax = ComFuns.completionTime(self.data,opt_solution,objweights)[2]
-        nbrmaintenances=ComFuns.completionTime(self.data,opt_solution,objweights)[8]
-        avgoutqual=ComFuns.completionTime(self.data,opt_solution,objweights)[9]
-        qualpenality=ComFuns.completionTime(self.data,opt_solution,objweights)[10]
+        
+        
         return opt_solution, opt_Cmax, time.perf_counter()-t0,nbrmaintenances,avgoutqual,qualpenality
 
 if __name__ == "__main__": 
@@ -98,18 +108,21 @@ if __name__ == "__main__":
     tempInit=100
     tempFin=0
     coolRate=0.99
-    iters=30000
-    weights=[0.7,0.2,0.1]
+    iters=5000
+    weights=[0.0,0.0,1.0]
  
     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/k{n1}/k{n1}.txt")
     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     #print(repr(data))
-    alphakl=0.0    # quality degradation rate
-    betakl=0.0         # average degradation rate of componenets 
-    std_betakl=0.0     # standard deviation of degradation rate of componenets
-    qjmin=0.95          # acceptable quality level triggering quality penality ()
-    lambdakl=0.95       # degradation threshold triggering PdM 
+   
+    alphakl=0.01         # quality degradation rate
+    betakl=0.05          # average degradation rate of componenets 
+    std_betakl=0.0      # standard deviation of degradation rate of componenets
+    qjmin=0.8          # acceptable quality level triggering quality penality ()
+    lambdakl=0.9        # degradation threshold triggering PdM 
+    dureemaint=1        # maintenance duration
+    
     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     x=float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
     #print(x)
@@ -117,13 +130,25 @@ if __name__ == "__main__":
     data.Qjmin = [qjmin for j in range(data.nbJobs)] 
     #print(data.seuils_degradation)  
     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
+    data.dureeMaintenances = [[dureemaint for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
+    print(repr(data))
     rscs=RSCS(data)
     ## Solve with SA algorithm
     optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1=rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,True)
+    
+    #Tij, Cij, CMAX, DEG, Ykl, i_s, OQj, TotCost,NbMaint,AOQ,penality = completionTime_previous(data, optsolution1,weights)
+    #Tij, Cij, CMAX, DEG, Ykl, i_s, OQj, TotCost,NbMaint,AOQ,penality,feasability = completionTime(model.data, optsolution1, model.wheights)
+    
+    #print("optCmax1=",optCmax1, " CMAX=",CMAX)
+    #print("nbrmaint1=",nbrmaint1," NbMaint=",NbMaint)
+    #print("avgoq1=",avgoq1, " AOQ=",AOQ)
+    
     #print("optsolution1=",optsolution1)
     k=1
-    save_JSON(data,optsolution1,f"Results/RSCStestk{n1}inst{n2}_{k}.json",weights)
-    result = lire_fichier_json(f"Results/RSCStestk{n1}inst{n2}_{k}.json")
+    save_JSON(data,optsolution1,f"Results/JSONS/RSCStestk{n1}inst{n2}_{k}.json",weights)
+    result = lire_fichier_json(f"Results/JSONS/RSCStestk{n1}inst{n2}_{k}.json")
     plotGantt(result, f"Results/Gantts/RSCStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
-    plotDEGRAD(result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=False)
+    #plotDEGRAD(result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=False)
+    plotEHF(    result, data,  f"Results/EHFs/RSCStestk{n1}inst{n2}_figure_{k}",f"RSCStestk-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
+    
     #print("obj1=", optCmax1, "CPUTime=",cputime1)   

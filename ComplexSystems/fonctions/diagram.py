@@ -5,6 +5,7 @@ import math
 #from colors import colors
 import matplotlib.patches as mpatches
 import re
+import os
 
 colors = {
     'J1': '#ff9999',   # Light Red
@@ -123,11 +124,16 @@ def plotGantt(result, pngfname, plottitle, showgantt):
     legend_handles = [mpatches.Patch(color=colors[rsc], label=rsc) for rsc in jobs]
     gnt.legend(handles=legend_handles, title="Jobs", fontsize=10, bbox_to_anchor=(1.05, 1), loc='upper left')
 
-
+    # Get the directory part of your filename
+    dirname = os.path.dirname(f"{pngfname}-GanttDiagram{plottitle}.png")
+    # Create the directory if it doesn't exist
+    if dirname and not os.path.exists(dirname):
+        os.makedirs(dirname)
+    
     plt.tight_layout()
     fig.savefig(f"{pngfname}-GanttDiagram{plottitle}.png", bbox_inches='tight')
-    # if showgantt == True:
-        # plt.show()
+    if showgantt == True:
+       plt.show()
 
 def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
     # Initialize plot
@@ -325,12 +331,16 @@ def plotEHF(result, data, pngfname, plottitle, showdegrad):
                 ehf_data2[m][c].append(degr)
 
     # Plotting: offset each machine vertically by its index so components for same machine are stacked
+    marks=['o','s','x','D','^','*']
     for m, mdeg in enumerate(ehf_data2):
         for c, cdeg in enumerate(mdeg):
             x = ehf_time[m][c]
             # add machine offset so components appear around machine index
             y = [val + m for val in cdeg]
-            ehf.plot(x, y, label=f'$C_{{{m+1},{c+1}}}$')
+            ehf.plot(x, y, marker=marks[m],label=f'$C_{{{m+1},{c+1}}}$')
+            for i,val in enumerate(cdeg):
+                s=val+m+0.05
+                ehf.text(x[i],val+m+0.05,f'{val:.2f}')
 
     # Formatting
     ehf.set_yticks(range(len(machines)))
@@ -345,12 +355,174 @@ def plotEHF(result, data, pngfname, plottitle, showdegrad):
     # if showdegrad == True:
         # plt.show()
 
+def build_gantt_result_from_solution(data, optsolution):
+    """
+    Build a dict:
+      result = {"fig": [ {task,start,end,rsc,label,info}, ... ]}
 
-if __name__ == "__main__": 
+    Compatible with your plotGantt().
+    - Adds operation bars
+    - Adds maintenance bars between consecutive operations on the same machine
+      using y_set = {(j,i,l)} meaning maintenance AFTER op (j,i) for component l
+    """
+    seq_jobs, seq_machs, y_set, t_matrix, _rank = optsolution
+
+    # Reconstruct (j,i) for each occurrence in seq order:
+    # We need to know which operation index i within job j corresponds to each entry in seq_jobs.
+    # We can rebuild by counting occurrences per job in the global sequence.
+    j_counter = [0 for _ in range(data.nbJobs)]
+    seq_ops = []  # list of (j,i,k)
+    for idx, j in enumerate(seq_jobs):
+        i = j_counter[j]
+        j_counter[j] += 1
+        k = seq_machs[idx]
+        seq_ops.append((j, i, k))
+
+    fig = []
+
+    # Group operations by machine and sort by start time
+    ops_by_machine = {k: [] for k in range(data.nbMachines)}
+    for (j, i, k) in seq_ops:
+        start = float(t_matrix[j][i])
+        dur = float(data.dureeOperations[k][j][i])
+        end = start + dur
+        ops_by_machine[k].append((start, end, j, i, k))
+
+    for k in range(data.nbMachines):
+        ops_by_machine[k].sort(key=lambda x: (x[0], x[2], x[3]))  # by start time
+
+        machine_name = f"Machine {k+1}"
+
+        for idx, (start, end, j, i, k_) in enumerate(ops_by_machine[k]):
+            # --- operation bar ---
+            fig.append({
+                "task": machine_name,
+                "start": start,
+                "end": end,
+                "rsc": f"Job {j+1}",
+                "label": f"J{j+1}-O{i+1}",
+                "info": f"Job: {j+1}, Op: {i+1}, Machine: {k+1}"
+            })
+
+            # --- maintenance bar AFTER this op, BEFORE next op on same machine ---
+            # y_set encodes maint AFTER (j,i) per component l
+            comps = []
+            for l in range(data.nbComposants[k]):
+                if (j, i, l) in y_set:
+                    comps.append(l)
+
+            if comps:
+                maint_start = end
+                maint_dur = sum(float(data.dureeMaintenances[k][l]) for l in comps)
+                maint_end = maint_start + maint_dur
+
+                info = " ; ".join([f"Composant: {l+1}" for l in comps])
+
+                fig.append({
+                    "task": machine_name,
+                    "start": maint_start,
+                    "end": maint_end,
+                    "rsc": "Maintenances",
+                    "label": "M",
+                    "info": info
+                })
+
+                # IMPORTANT: if the next op starts after maint_end, there is idle time; we do nothing.
+                # Also note: In an optimal schedule, next op should start >= maint_end due to constraints.
+
+    return {"fig": fig}
+
+
+# ------------------------------------------------------------
+# 2) Your plot function (unchanged) but needs `colors` defined
+# ------------------------------------------------------------
+def plotGantt2(result, pngfname, plottitle, showgantt):
+    colors = {
+        'J1': '#ff9999',   # Light Red
+        'J2': '#99ff99',   # Light Green
+        'J3': '#9999ff',   # Light Blue
+        'J4': '#61620abf', # Dark Blue
+        'J5': '#ffcc99',   # Light Orange
+        'J6': '#66c2a5',   # Teal
+        'J7': '#fc8d62',   # Salmon
+        'J8': '#8da0cb',   # Lavender
+        'J9': '#e78ac3',   # Pink
+        'J10': '#a6d854',  # Lime Green
+        'J11': '#ffd92f',  # Yellow
+        'J12': '#e5c494',  # Beige
+        'J13': '#b3b3b3',  # Grey
+        'J14': '#1f78b4',  # Bright Blue
+        'J15': '#33a02c',  # Bright Green
+        'Maintenances': 'black'  # Dark Slate Grey
+    }
+
+    fig, gnt = plt.subplots(figsize=(15, 8))
+
+    gnt.minorticks_on()
+    gnt.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+    gnt.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')
+
+    gnt.set_xlabel('Time', fontsize=24, weight='bold')
+    gnt.set_ylabel('Processors', fontsize=24, weight='bold')
+
+    fig_data = result['fig']
+    machines = sorted(set(task["task"] for task in fig_data))
+    machine_index = {machine: idx for idx, machine in enumerate(machines)}
+
+    jobs = set()
+
+    for task in fig_data:
+        machine = task["task"]
+        start = task["start"]
+        end = task["end"]
+        duration = end - start
+        rsc = task["rsc"]
+        label = task["label"]
+        info = task.get("info", "")
+
+        # Normalize rsc: "Job 1" -> "J1" to match color keys
+        if rsc.startswith("Job "):
+             rsc = rsc.replace("Job ", "J").strip()
+        
+        color = colors.get(rsc, "gray")
+        jobs.add(rsc)
+
+        gnt.barh(machine_index[machine], duration, left=start, color=color, edgecolor="black")
+
+        if rsc != "Maintenances":
+            gnt.text(start + duration / 2, machine_index[machine], label,
+                     ha='center', va='center', color="black")
+        else:
+            composants = re.findall(r"Composant\s*:\s*(\d+)", info)
+            i_ = 0
+            for composant in composants:
+                lbl = f"C{composant}"
+                font_size = 8
+                text_y_pos = machine_index[machine] + i_ * 0.15
+                i_ += 1
+                gnt.text(start + duration / 2, text_y_pos, lbl,
+                         ha='center', va='center', fontsize=font_size, color="white")
+
+    gnt.set_yticks(range(len(machines)))
+    gnt.set_yticklabels(machines, fontsize=20)
+    gnt.set_xlabel("Time")
+    plt.title(plottitle, fontsize=25)
+
+    jobs = sorted(list(jobs), key=lambda x: int(x[1:]) if x.startswith('J') and x[1:].isdigit() else 999)
+    legend_handles = [mpatches.Patch(color=colors.get(rsc, "gray"), label=rsc) for rsc in jobs]
+    gnt.legend(handles=legend_handles, title="Jobs", fontsize=10,
+               bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    plt.tight_layout()
+    fig.savefig(f"{pngfname}-GanttDiagram{plottitle}.png", bbox_inches='tight')
+    if showgantt:
+        plt.show()
+
+if __name__ == "__main__":
     from Save_Read_JSON import lire_fichier_json
     from CommonFunctions import parse_degradations_file, parse_operations_file
     from data import Data 
-
+    
     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/TESTS/k1/k1.txt")
     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"C:/Users/BBettayeb/Documents/GitHub/Scheduling_Production_Maintenance/ComplexSystems/TESTS/k1/instance1/instance.txt")
 

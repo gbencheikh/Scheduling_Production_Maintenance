@@ -85,7 +85,7 @@ class RSCS:
             plt.show()
 
         t_ij, c_ij, Cmax, D_kl, y, i_s, Qj, cout, nbMaintenance, AOQ, Qpenality, feasible = ComFuns.completionTime(self.data,best_solution,objweights,True)
-        
+       
         return best_solution, Cmax, time.perf_counter()- t0, nbMaintenance, AOQ, Qpenality
 
 if __name__ == "__main__": 
@@ -94,32 +94,27 @@ if __name__ == "__main__":
     tempInit=100
     tempFin=0
     coolRate=0.99
-    iters=30
+    iters=30000
     weights=[0.7,0.2,0.1]
  
     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"ComplexSystems/TESTS/k{n1}/k{n1}.txt")
     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"ComplexSystems/TESTS/k{n1}/instance{n2}/instance.txt")
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
-    
-    alphakl=0.2         # quality degradation rate
+    print(repr(data))
+    alphakl=0.1         # quality degradation rate
     betakl=0.1          # average degradation rate of componenets 
     std_betakl=0.0      # standard deviation of degradation rate of componenets
-    qjmin=0.95          # acceptable quality level triggering quality penality ()
-    lambdakl=1        # degradation threshold triggering PdM 
+    qjmin=0.9          # acceptable quality level triggering quality penality ()
+    lambdakl=0.9        # degradation threshold triggering PdM 
     dureemaint=1        # maintenance duration 
     
     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    
     data.dureeMaintenances = [[dureemaint for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    x = float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
-    
+    x = float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))    
     data.degradations=[[[[x  for ido in range(data.nbOperationsParJob[j])]  for j in range(data.nbJobs) ] for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
-    data.Qjmin = [qjmin for j in range(data.nbJobs)] 
-     
+    data.Qjmin = [qjmin for j in range(data.nbJobs)]      
     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
     
-    print(repr(data))
-
     rscs=RSCS(data)
     ## Solve with SA algorithm
     RSsolution, Cmax, CPU,nbMaint,AOQ,Qpenalty = rscs.Run_RSCS(tempInit,tempFin,coolRate,iters,weights,True)

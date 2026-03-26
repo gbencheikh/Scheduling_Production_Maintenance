@@ -1,4 +1,4 @@
-from fonctions.CommonFunctions import parse_degradations_file, parse_operations_file
+from fonctions.CommonFunctions import parse_degradations_file, parse_operations_file, completionTime
 #from fonctions.colors import couleurMachines
 from fonctions.data import Data
 
@@ -13,23 +13,12 @@ from fonctions.Save_Read_JSON import *
 
 
 class FJSP_Maintenance_Quality_complex_systems__model:
-    """
-    A class to .
-    
-    Attributes:
-    -----------
-    data: object 
-    represent scheduling and maintenance data for a production system
-    """
-    def __init__(self, n1, n2, n_max=4,wheights=[1.0,0.0,0.0]): 
+    def __init__(self, datas, n_max=3,wheights=[1.0,0.0,0.0]): 
         self.inf= 999999
         self.n_max = n_max
         self.wheights =wheights
-        nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/k{n1}/k{n1}.txt")
-        _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
-        self.data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
-        
-        self.alpha_kl = [[.01 for l in range(nbComposants[k])] for k in range(self.data.nbMachines)]
+        self.data = datas
+        self.alpha_kl = [[.01 for l in range(datas.nbComposants[k])] for k in range(self.data.nbMachines)]
         self.AQL = 0.8
         self.Qinitj = [1.0 for j in range(self.data.nbJobs)]  # Exemple de taux de qualité initiale
         self.Qjmin = [0.8 for j in range(self.data.nbJobs)]   # Exemple de taux de qualité minimale acceptable
@@ -173,7 +162,7 @@ class FJSP_Maintenance_Quality_complex_systems__model:
         ## CONTRAINTES DE NON CHEVAUVHEMENT DES OPERATIONS SUR LES MACHINES
         for l in range(maxComposants):
             for j in range(self.data.nbJobs):
-                for i in range(self.data.nbOperationsParJob[j_]):
+                for i in range(self.data.nbOperationsParJob[j]):
                     LBtij=0
                     LBtij+=xsum(prod_w_t[n][k][j_][i_][j][i] + w[n][k][j_][i_][j][i] * self.data.dureeOperations[k][j_][i_] + 
                                                  z[n][k][l][j_][i_][j][i] * self.data.dureeMaintenances[k][l]
@@ -235,7 +224,20 @@ class FJSP_Maintenance_Quality_complex_systems__model:
             [[int(t_ij[j][i].x) for i in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)],
             [[[y_kln[n][k][l].x for n in range(self.n_max)] for l in range(self.data.nbComposants[k])] for k in  range(self.data.nbMachines)]
         ]
-        
+        for j in range(self.data.nbJobs):
+            for i in range(self.data.nbOperationsParJob[j]):
+                mach=sum(k*int(x_ijkn[n][k][j][i].x) for n in range(self.n_max) for k in range(self.data.nbMachines))
+                rank=sum(n*int(x_ijkn[n][mach][j][i].x) for n in range(self.n_max))
+                maxdeg=max([D_kln[rank][mach][l].x for l in range(self.data.nbComposants[mach])] )
+                stime=int(t_ij[j][i].x)
+                ptime=sum([int(x_ijkn[n][k][j][i].x) * self.data.dureeOperations[k][j][i]  for n in range(self.n_max)  for k in range(self.data.nbMachines)])
+                maintafter=False
+                for l in range(self.data.nbComposants[mach]):
+                    if y_kln[rank][mach][l].x:
+                        maintafter=True
+                        break
+                print("O_%d,%d : machine=%d  start=%d  end=%d  rank=%d  max_machDeg=%.2f  maintAfter=%s" % (j+1,i+1,mach+1,stime,stime+ptime,rank, maxdeg,maintafter))
+                
         """
         for k in range(self.data.nbMachines):
             for l in range(self.data.nbComposants[k]):
@@ -247,7 +249,7 @@ class FJSP_Maintenance_Quality_complex_systems__model:
                                 break
                         if optsolution1[4][k][l][n]==True:
                             break
-        """
+        
         for k,s in enumerate(optsolution1[4]):
             for l,ss in enumerate(s):
                 print("machine=",k+1, " composant=",l," =",ss, f'D_kln[n][{k}][{l}]=', [D_kln[n][k][l].x for n in range(self.n_max)])               
@@ -269,24 +271,27 @@ class FJSP_Maintenance_Quality_complex_systems__model:
                                 #print("break 1"," j=",j+1," i=",i+1, " machine=",k+1, " n=",n+1)
                                 break
                     optsolution1[2][l][j][i]=temp
+        """
         avgoq1=sum((1-Qj[j].x) for j in range(self.data.nbJobs))/self.data.nbJobs
-        print("optsolution1[2]=",optsolution1[2])
+        for k in range(self.data.nbMachines):
+            print([["{:.2f}".format(D_kln[n][k][l].x) for l in range(self.data.nbComposants[k]) ] for n in range(self.n_max)])
+        
         return optsolution1, optCmax1, cputime1,nbrmaint1,avgoq1,qualpenal1
 
 if __name__ == "__main__": 
     n1=1
     n2=1
     nbJobs, nbMachines, nbOperationsParJob, dureeOperations, processingTimes = parse_operations_file(f"TESTS/k{n1}/k{n1}.txt")
-    
     _, _, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2 = parse_degradations_file(f"TESTS/k{n1}/instance{n2}/instance.txt")
     data = Data(nbJobs, nbMachines, nbComposants, seuils_degradation, dureeMaintenances, degradations, degradations2, nbOperationsParJob, dureeOperations, processingTimes)
     #print(repr(data))
-    alphakl=0.0    # quality degradation rate
-    betakl=0.1         # average degradation rate of componenets 
-    std_betakl=0.0     # standard deviation of degradation rate of componenets
-    qjmin=0.9          # acceptable quality level triggering quality penality ()
-    lambdakl=0.9       # degradation threshold triggering PdM 
-    dureemaint=1
+    alphakl=0.5         # quality degradation rate
+    betakl=0.2          # average degradation rate of componenets 
+    std_betakl=0.0      # standard deviation of degradation rate of componenets
+    qjmin=0.95          # acceptable quality level triggering quality penality ()
+    lambdakl=0.95        # degradation threshold triggering PdM 
+    dureemaint=1        # maintenance duration
+    
     data.alpha_kl = [[alphakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
     x=float(np.round(max(0,np.random.normal(betakl, std_betakl, 1)[0]),3))
     #print(x)
@@ -296,7 +301,7 @@ if __name__ == "__main__":
     data.seuils_degradation = [[lambdakl for l in range(data.nbComposants[k])] for k in range(data.nbMachines)] 
     data.dureeMaintenances = [[dureemaint for l in range(data.nbComposants[k])] for k in range(data.nbMachines)]
      
-    model = FJSP_Maintenance_Quality_complex_systems__model(n1, n2)
+    model = FJSP_Maintenance_Quality_complex_systems__model(data)
     model.wheights=[1.0,0.0,0.0]
     model.n_max=3
     model.Qinitj = [1.0 for j in range(model.data.nbJobs)]  # Exemple de taux de qualité initiale
@@ -307,19 +312,21 @@ if __name__ == "__main__":
     
     optsolution1, optCmax1, cputime1, nbrmaint1, avgoq1, qualpenal1=model.solve()
     
-    Tij, Cij, CMAX, DEG, Ykl, i_s, OQj, TotCost,NbMaint,AOQ,penality=completionTime(model.data, optsolution1, model.wheights)
-    print("optCmax1=",optCmax1, " CMAX=",CMAX)
-    print("nbrmaint1=",nbrmaint1," NbMaint=",NbMaint)
-    print("avgoq1=",avgoq1, " AOQ=",AOQ)
+    #Tij, Cij, CMAX, DEG, Ykl, i_s, OQj, TotCost,NbMaint,AOQ,penality,feasability=completionTime(model.data, optsolution1, model.wheights)
+    #print("optCmax1=",optCmax1, " CMAX=",CMAX)
+    #print("nbrmaint1=",nbrmaint1," NbMaint=",NbMaint)
+    #print("avgoq1=",avgoq1, " AOQ=",AOQ)
     #print("optsolution1=",optsolution1)
     k=1
-    save_JSON(model.data,optsolution1,f"Results/MILPtestk{n1}inst{n2}_{k}.json",model.wheights)
-    result = lire_fichier_json(f"Results/MILPtestk{n1}inst{n2}_{k}.json")
+    save_JSON(model.data,optsolution1,f"Results/JSONS/MILPtestk{n1}inst{n2}_{k}.json",model.wheights)
+    result = lire_fichier_json(f"Results/JSONS/MILPtestk{n1}inst{n2}_{k}.json")
     plotGantt(result, f"Results/Gantts/MILPtestk{n1}inst{n2}_figure_{k}",f"MILP-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showgantt=True)
-    plotDEGRAD(result, model.data,  f"Results/EHFs/MILP{n1}inst{n2}_figure_{k}",f"MILP-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
+    #plotDEGRAD(result, model.data,  f"Results/EHFs/MILP{n1}inst{n2}_figure_{k}",f"MILP-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
+    plotEHF(   result, model.data,  f"Results/EHFs/MILP{n1}inst{n2}_figure_{k}",f"MILP-k{n1}inst{n2}-alpha{alphakl}-lambda{lambdakl}-beta{betakl}-AQL{qjmin}", showdegrad=True)
     
-    print("optCmax1=", optCmax1," avgoq1=", avgoq1, " qualpenal1=",qualpenal1, " nbrmaint1=",nbrmaint1,  "CPUTime=",cputime1)              
-    print(optsolution1)
+    #print("optCmax1=", optCmax1," avgoq1=", avgoq1, " qualpenal1=",qualpenal1, " nbrmaint1=",nbrmaint1,  "CPUTime=",cputime1)              
+    #print(optsolution1)
+    plt.show() 
 def Run_solver(data,n1,n2):
     model = FJSP_Maintenance_Quality_complex_systems__model(n1, n2)
     model.data=data

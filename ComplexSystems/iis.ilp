@@ -1,0 +1,11 @@
+\ Model FJSP_MQ_OPTION_B_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Minimize
+ 
+Subject To
+ Dacc_lb[1,2,3,0]: - 1.2 x[1,2,3] - Dbefore[1,2,3,0] + D[1,2,3,0] >= 4.2
+Bounds
+ -infinity <= D[1,2,3,0] <= 1.2
+Binaries
+ x[1,2,3]
+End
