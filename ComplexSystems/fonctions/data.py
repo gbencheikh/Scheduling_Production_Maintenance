@@ -62,6 +62,49 @@ class Data:
         self.processingTimes = processingTimes
         self.alpha_kl = [[0.0 for l in range(self.nbComposants[k])] for k in range(self.nbMachines)]
         self.Qjmin = [0.8 for j in range(self.nbJobs)]
+    
+    def set_fixed_alphakl(self, alphakl: float): 
+        """ 
+        Parameters:
+        alphakl : value of alpha of each component per machine, quality degradation rate
+        """
+        self.alpha_kl = [[alphakl for l in range(self.nbComposants[k])] for k in range(self.nbMachines)]
+    
+    def set_fixed_degradation(self, betakl: float): 
+        """ 
+        Parameters:
+        betakl : value of beta of each component per machine, average degradation rate of componenets 
+        """
+        self.degradations=[[[[betakl  for ido in range(self.nbOperationsParJob[j])]  for j in range(self.nbJobs) ] for l in range(self.nbComposants[k])] for k in range(self.nbMachines)]
+    
+    def set_fixed_Qjinit(self, qinit: float): 
+        """ 
+        Parameters:
+        aql : value of initial AQL of each job. 
+        """
+        self.Qinitj = [qinit for j in range(self.nbJobs)] 
+
+    def set_fixed_Qjmin(self, aql: float): 
+        """ 
+        Parameters:
+        aql : value of min AQL of each job. Acceptable quality level triggering quality penality
+        """
+        self.Qjmin = [aql for j in range(self.nbJobs)] 
+    
+    def set_fixed_degradation_threshold(self, lambdakl: float):
+        """ 
+        Parameters:
+        lambdakl : degradation threshold triggering PdM 
+        """
+        self.seuils_degradation = [[lambdakl for l in range(self.nbComposants[k])] for k in range(self.nbMachines)] 
+
+    def set_maintenance_duration(self, dureemaint: int): 
+        """ 
+        Parameters:
+        dureemaint : maintenance duration
+        """
+        self.dureeMaintenances = [[dureemaint for l in range(self.nbComposants[k])] for k in range(self.nbMachines)] 
+        self.dureemaint = dureemaint 
 
     def __repr__(self):
         """
@@ -80,9 +123,7 @@ class Data:
 
         # Print each machine's details
         for i, (composants, seuils, duration) in enumerate(zip(self.nbComposants, self.seuils_degradation, self.dureeMaintenances)):
-            machines_repr+= (f"{'M' + str(i+1):<10}{str(composants):<25}{str(seuils):<25}")
-            # Affiche seulement les durées correspondant au nombre de composants
-            machines_repr += f"{str(duration[:composants]):<25}"
+            machines_repr+= (f"{'M' + str(i+1):<10}{str(composants):<25}{str(seuils):<25}{str(duration[:composants]):<25}")
             
             machines_repr+="\n"    
 
@@ -111,7 +152,7 @@ class Data:
         return (f"Data(nbJobs={self.nbJobs}, nbMachines={self.nbMachines}) \n"
                 f"{machines_repr}\n"
                 f"{jobs_repr} \n"
-                f"degradation {self.degradations} \n"
+                #f"degradation {self.degradations} \n"
                 )
     
     def __str__(self):

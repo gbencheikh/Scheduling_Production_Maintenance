@@ -26,7 +26,7 @@ colors = {
     'Maintenances': 'black'  # Dark Slate Grey
 }
         
-def plotGantt(result, pngfname, plottitle, showgantt):
+def plotGantt(result, pngfname, plottitle, showgantt, ax=None):
     """ Display a Gantt chart for a given scheduling solution.
 
     This function takes a JSON-like object containing scheduling information and generates a Gantt chart 
@@ -65,7 +65,12 @@ def plotGantt(result, pngfname, plottitle, showgantt):
         scheduling data.
     """
     # Initialize plot
-    fig, gnt = plt.subplots(figsize=(15, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(15, 8))
+    else:
+        fig = ax.figure
+
+    gnt = ax
     
     gnt.minorticks_on()
     gnt.grid(which='major', linestyle='-', linewidth='0.5', color='grey')   # Customize the major grid
@@ -117,7 +122,9 @@ def plotGantt(result, pngfname, plottitle, showgantt):
     gnt.set_yticklabels(machines, fontsize=20)
     gnt.set_xlabel("Time")
     gnt.set_title("Gantt Chart")
-    plt.title(plottitle,fontsize=25)
+    
+    if ax is None: 
+        plt.title(plottitle,fontsize=25)
     
     # Créer la légende uniquement pour les ressources existantes
     jobs = sorted(set(job for job in jobs))
@@ -130,14 +137,19 @@ def plotGantt(result, pngfname, plottitle, showgantt):
     if dirname and not os.path.exists(dirname):
         os.makedirs(dirname)
     
-    plt.tight_layout()
+    # gnt.tight_layout()
     fig.savefig(f"{pngfname}-GanttDiagram{plottitle}.png", bbox_inches='tight')
-    if showgantt == True:
+    if showgantt == True and ax is None:
        plt.show()
 
-def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
+def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad, ax=None):
     # Initialize plot
-    fig, ehf = plt.subplots(figsize=(15, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(15, 8))
+    else:
+        fig = ax.figure
+
+    ehf = ax
     
     ehf.minorticks_on()
     ehf.grid(which='major', linestyle='-', linewidth='0.5', color='grey')   # Customize the major grid
@@ -148,11 +160,8 @@ def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
     
     # Extract unique machines
     tasks_data0 = result['fig']
-    #print(tasks_data0)
     tasks_data = sorted(tasks_data0, key=lambda x: (x["task"], x["start"],x["end"]))
-    #print(tasks_data)
     ehf_data = result['degradations']
-    #print(ehf_data)
 
     machines = sorted(set(task["task"] for task in result['fig']))
     machine_index = {machine: idx for idx, machine in enumerate(machines)}
@@ -209,7 +218,7 @@ def plotDEGRAD(result, data,  pngfname, plottitle, showdegrad):
     # if showdegrad == True:
         # plt.show()   
 
-def plotEHF(result, data, pngfname, plottitle, showdegrad):
+def plotEHF(result, data, pngfname, plottitle, showdegrad, ax=None):
     """
     Plot the degradation curves of machine components over time based on task execution and maintenance events.
 
@@ -263,7 +272,12 @@ def plotEHF(result, data, pngfname, plottitle, showdegrad):
     """
 
     # Initialize plot
-    fig, ehf = plt.subplots(figsize=(15, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(15, 8))
+    else:
+        fig = ax.figure
+
+    ehf = ax
 
     ehf.minorticks_on()
     ehf.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
@@ -347,13 +361,16 @@ def plotEHF(result, data, pngfname, plottitle, showdegrad):
     ehf.set_yticklabels(machines, fontsize=20)
     ehf.set_xlabel("Time")
     ehf.set_title("EHF Chart")
-    plt.title(plottitle, fontsize=25)
+    
+    if ax is None:
+        plt.title(plottitle, fontsize=25)
+    
     ehf.legend(title=" Components: $C_{m,c}$ ", fontsize=10, bbox_to_anchor=(1.05, 1), loc='upper left')
 
-    plt.tight_layout()
+    # ehf.tight_layout()
     fig.savefig(f"{pngfname}-EHF{plottitle}.png", bbox_inches='tight')
-    # if showdegrad == True:
-        # plt.show()
+    if showdegrad == True and ax is None:
+        plt.show()
 
 def build_gantt_result_from_solution(data, optsolution):
     """

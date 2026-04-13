@@ -18,14 +18,8 @@ def convert_ndarray_to_list(obj):
 def save_JSON(data, solution, fileName,weights):
     taches = []
     
-    #t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality = completionTime_previous(data,solution,weights)
-    t_ij, c_ij, Cmax, deg, y, i_s, Qj, cout,nbMaintenance,outqual,penality,feasible = completionTime(data,solution,weights,False)
-    #print(" y:")
-    #for i,s in enumerate(y):
-    #    print(s)
-    #print("solution[2]:")
-    #for i,s in enumerate(solution[2]):
-    #    print(s)
+    _, c_ij, Cmax, deg, y, i_s, Qj, _,_,_,_,_ = completionTime(data,solution,weights,False)
+    
     for ind in range(sum(data.nbOperationsParJob)):
         k = solution[1][ind]
         j = solution[0][ind]
@@ -38,43 +32,7 @@ def save_JSON(data, solution, fileName,weights):
                            end=end_ji, 
                            rsc=f"J{j+1}", 
                            label="$O_{%d,%d}$" % (j+1,i+1), info=f"J{j+1}"))
-        print("O_%d,%d : machine=%d  start=%d end=%d" % (j+1,i+1,k+1,start_ji,end_ji))
-    ############
-    """
-    for k in range(data.nbMachines):
-        for l in range(data.nbComposants[k]):
-            for ind in range(sum(data.nbOperationsParJob)):
-                i = i_s[ind]
-                j = solution[0][ind]
-                #k_ = solution[1][ind]
-                if (y[l][j][i] and solution[1][ind]==k):
-                    machine = k+1
-                    composant = l+1
-                    start_time = c_ij[j][i]
-                    finish_time = start_time + data.dureeMaintenances[k][l]
-                    tache = dict(task=f"Machine {machine}", 
-                                 start=start_time, 
-                                 end=finish_time, 
-                                 rsc=f"Maintenances",
-                                 label=f"M", 
-                                 info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
-                    taches.append(tache)
-                    
-                    for ind_ in range(ind, sum(data.nbOperationsParJob)):
-                        if solution[1][ind_] == k_ :
-                            machine = k+1
-                            composant = l+1
-                            start_time = c_ij[j][i]
-                            finish_time = start_time + data.dureeMaintenances[k][l]
-                            tache = dict(task=f"Machine {machine}", 
-                                         start=start_time, 
-                                         end=finish_time, 
-                                         rsc=f"Maintenances",
-                                         label=f"M", 
-                                         info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
-                            taches.append(tache)
-                            break
-                    """
+    
     for ind in range(sum(data.nbOperationsParJob)):
         i = i_s[ind]
         j = solution[0][ind]
@@ -92,22 +50,6 @@ def save_JSON(data, solution, fileName,weights):
                              label=f"M",  
                              info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
                 taches.append(tache)
-    """    
-        for k in range(data.nbMachines):
-            if solution[1][ind]==k:
-                for l in range(data.nbComposants[k]):
-                    if y[l][j][i]:
-                        machine = k+1
-                        composant = l+1
-                        start_time = c_ij[j][i]
-                        finish_time = start_time + data.dureeMaintenances[k][l]
-                        tache = dict(task=f"Machine {machine}", 
-                                     start=start_time, end=finish_time, 
-                                     rsc=f"Maintenances",  
-                                     label=f"M",  
-                                     info=f"Composant : {composant} (duree={data.dureeMaintenances[k][l]})")
-                        taches.append(tache)
-"""
     
     taches = sorted(taches, key=lambda x: (x["task"], x["start"],x["end"]))
     data = {
@@ -117,19 +59,20 @@ def save_JSON(data, solution, fileName,weights):
         "degradations": deg
     }
     
-    #dumped = json.dumps(data, cls=NumpyEncoder)
-    #with open(fileName, 'w') as f:
-    #    json.dump(dumped, f)
+    
     # Écrire les données dans un fichier JSON
     data = convert_ndarray_to_list(data)
     with open(fileName, 'w') as json_file:
         json.dump(data, json_file, indent=4)
+
+    print(f"Resultats enregistrés dans le fichier : {fileName}")
 
 
 def lire_fichier_json(chemin_fichier):
     with open(chemin_fichier, 'r') as fichier:
         data = json.load(fichier)
     return data
+
 def afficher_fichier_json(data):
     # Afficher le contenu de chaque clé principale
     print("Cmax_x:", data["Cmax_x"])

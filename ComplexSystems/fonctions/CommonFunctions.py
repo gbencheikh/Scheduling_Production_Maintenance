@@ -102,9 +102,6 @@ def parse_operations_file(filename, inf=9999):
 import copy
 
 def completionTime(data, solution, weights, debug=True):
-    print("data=",data)
-    print("optsolution1=",solution)
-    print("weights=",weights)
     """
     Simulation cohérente avec OPTION B + y sans indice machine :
 
