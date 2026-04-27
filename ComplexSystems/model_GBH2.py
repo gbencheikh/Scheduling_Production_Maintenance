@@ -53,7 +53,7 @@ class FJSP_Maintenance_Quality_complex_systems_model:
         self.Dmax_kl = {}
         for k in self.K:
             for l in self.L[k]:
-                th = float(data.seuils_degradation[k][l])
+                th = float(self.data.seuils_degradation[k][l])
                 self.Dmax_kl[k, l] = max(1.0, 1.2 * th)
         return self.Dmax_kl
 
@@ -76,7 +76,7 @@ class FJSP_Maintenance_Quality_complex_systems_model:
             for k in self.K:
                 maxp = max(maxp, float(self.data.dureeOperations[k][j][i]))
             totP += maxp
-        maxMaintSum = sum(sum(float(data.dureeMaintenances[k][l]) for l in self.L[k]) for k in self.K)
+        maxMaintSum = sum(sum(float(self.data.dureeMaintenances[k][l]) for l in self.L[k]) for k in self.K)
         self.tmax = max(1.0, totP + self.N * maxMaintSum)
         return self.tmax 
 
@@ -375,7 +375,7 @@ class FJSP_Maintenance_Quality_complex_systems_model:
     def const_Cmax(self, model):
         # (17) Cmax 
         for j in self.J:
-            last_i = data.nbOperationsParJob[j] - 1
+            last_i = self.data.nbOperationsParJob[j] - 1
             proc_last = gp.quicksum(self.a[j, last_i, k, r] * self.data.dureeOperations[k][j][last_i]
                                     for k in self.K if (j, last_i) in self.O_k[k]
                                     for r in self.R[k])
@@ -469,7 +469,7 @@ class FJSP_Maintenance_Quality_complex_systems_model:
         # y_set: (j,i,l) if component l maintained after op (j,i)
         # Here, op (j,i) sits in slot (k,r) so we read y[k,l,r]
         y_set = set()
-        yset2=[[[False  for _ in range(data.nbOperationsParJob[j])] for j in range(data.nbJobs)] for _ in range(max(self.data.nbComposants))]
+        yset2=[[[False  for _ in range(self.data.nbOperationsParJob[j])] for j in range(self.data.nbJobs)] for _ in range(max(self.data.nbComposants))]
         for (j, i) in self.O:
             k, r = assign[(j, i)]
             for l in self.L[k]:

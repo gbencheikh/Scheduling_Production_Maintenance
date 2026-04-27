@@ -113,7 +113,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
 
         LossSlotMax = {}
         for k in K:
-            LossSlotMax[k] = float(sum(self.alpha_kl[k][l] * Dmax_kl[k, l] for l in L[k]))
+            LossSlotMax[k] = float(sum(data.alpha_kl[k][l] * Dmax_kl[k, l] for l in L[k]))
 
         totP = sum(max(float(data.dureeOperations[k][j][i]) for k in K)
                    for (j, i) in O)
@@ -279,7 +279,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
         # Quality: LossSlot, qloss, LossOp
         for k in K:
             for r in R[k]:
-                m.addConstr(LossSlot[k, r] == gp.quicksum(self.alpha_kl[k][l] * D_after[k, l, r]
+                m.addConstr(LossSlot[k, r] == gp.quicksum(data.alpha_kl[k][l] * D_after[k, l, r]
                                                           for l in L[k]))
                 m.addConstr(LossSlot[k, r] <= LossSlotMax[k] * U[k, r])
 
@@ -300,7 +300,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
         # Quality recurrence
         M_Q = 1.0
         for j in J:
-            expr0 = float(self.Qinitj[j]) - LossOp[j, 0]
+            expr0 = float(data.Qinitj[j]) - LossOp[j, 0]
             m.addConstr(-expr0 <= M_Q * (1 - ZQ[j, 0]))
             m.addConstr(expr0  <= M_Q * ZQ[j, 0])
             m.addConstr(Qji[j, 0] <= expr0 + M_Q * (1 - ZQ[j, 0]))
@@ -319,7 +319,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
             m.addConstr(Qj[j] == Qji[j, last_i])
 
         for j in J:
-            m.addConstr(penal[j] >= float(self.Qjmin[j]) - Qj[j])
+            m.addConstr(penal[j] >= float(data.Qjmin[j]) - Qj[j])
             m.addConstr(penal[j] >= 0.0)
         m.addConstr(TotPena == gp.quicksum(penal[j] for j in J))
 
@@ -808,7 +808,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
             for r in pareto:
                 writer.writerow({k: r.get(k, '') for k in fieldnames})
         print(f"Pareto front saved to '{filepath}'  ({len(pareto)} solutions)")
-
+"""
     def solve_max_quality(self, epsilon_time=None, epsilon_maint=None, time_limit=3600):
         # ... (variables et contraintes d'ordonnancement inchangées) ...
     
@@ -830,7 +830,7 @@ class FJSP_EpsilonConstraint(FJSP_Maintenance_Quality_complex_systems_model):
         
         # ... (extraction des résultats) ...
         return optsolution, optCmax, cputime, nbrmaint, m.objVal, qualpenal
-
+"""
 # ===========================================================================
 # Example usage
 # ===========================================================================
@@ -855,25 +855,22 @@ if __name__ == "__main__":
     lambdakl  = 0.9
     dureemaint = 2
 
-    DATA.alpha_kl       = [[alphakl for _ in range(nbComposants[k])] for k in range(nbMachines)]
-    DATA.degradations   = [[[[betakl for _ in range(nbOperationsParJob[j])]
-                              for j in range(nbJobs)]
-                             for _ in range(nbComposants[k])]
-                            for k in range(nbMachines)]
-    DATA.Qjmin          = [aql for _ in range(nbJobs)]
-    DATA.seuils_degradation = [[lambdakl for _ in range(nbComposants[k])] for k in range(nbMachines)]
-    DATA.dureeMaintenances  = [[dureemaint for _ in range(nbComposants[k])] for k in range(nbMachines)]
+    qinit  = 1.0
 
-    alphas = DATA.alpha_kl
-    qinit  = [1.0 for _ in range(nbJobs)]
-    qmin   = [aql for _ in range(nbJobs)]
+    DATA.set_fixed_alphakl(alphakl)
+    DATA.set_fixed_degradation(betakl)
+
+    DATA.set_fixed_degradation_threshold(lambdakl)
+    DATA.set_maintenance_duration(dureemaint)
+    
+    DATA.set_fixed_Qjinit(qinit)
+    DATA.set_fixed_Qjmin(aql)
 
     # -----------------------------------------------------------------------
     # Create solver and generate Pareto front
     # -----------------------------------------------------------------------
     solver = FJSP_EpsilonConstraint(
-        DATA, alphas, aql, qinit, qmin,
-        weights=(1.0, 0.0, 0.0)   # initial weights (overridden internally)
+        DATA, weights=(1.0, 0.0, 0.0)   # initial weights (overridden internally)
     )
 
     pareto = solver.generate_pareto_front(
